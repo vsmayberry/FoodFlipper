@@ -4,6 +4,11 @@
 
     <!-- To access Google+ APIs: -->
     <uses-permission android:name="android.permission.INTERNET" />
+    //Added permissions for functionality
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!--
  To retrieve OAuth 2.0 tokens or invalidate tokens to disconnect a user. This disconnect
      option is required to comply with the Google+ Sign-In developer policies
@@ -24,17 +29,18 @@
             android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity
+            android:name=".HomeScreen"
+            android:label="@string/title_activity_home_screen"></activity>
     </application>
 
 </manifest>

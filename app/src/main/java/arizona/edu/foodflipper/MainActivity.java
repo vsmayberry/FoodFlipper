@@ -23,10 +23,17 @@ public class MainActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         SharedPreferences settings = getPreferences(0);
         boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
+        //TODO implement loggin with DATABASE
+        isLoggedIn = true;
         if (!isLoggedIn) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, HomeScreen.class);
+            startActivity(intent);
         }
+
+
         return true;
     }
 

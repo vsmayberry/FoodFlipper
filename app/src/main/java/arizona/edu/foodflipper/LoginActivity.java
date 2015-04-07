@@ -268,11 +268,17 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
             while (users.moveToNext()) {
                 if (users.getString(0).equals(mEmail)) {
+                    System.out.println("Found user in db");
                     return users.getString(1).equals(mPassword);
                 }
             }
 
-            // TODO: register the new account here.
+            // TODO: register the new account here
+            User user = new User();
+            user.setEmail(mEmail);
+            user.setPassword(mPassword);
+            dh.insertUser(user);
+            System.out.println("Created New User");
             return true;
         }
 
