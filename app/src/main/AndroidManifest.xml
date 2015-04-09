@@ -39,8 +39,8 @@
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity
-            android:name=".HomeScreen"
-            android:label="@string/title_activity_home_screen"></activity>
+            android:name=".FoodEntryActivity"
+            android:label="@string/title_activity_food_entry" />
     </application>
 
 </manifest>

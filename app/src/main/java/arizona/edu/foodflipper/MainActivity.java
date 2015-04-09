@@ -24,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_USER);
         } else {
-            Intent intent = new Intent(this, HomeScreen.class);
+            Intent intent = new Intent(this, FoodEntryActivity.class);
             startActivity(intent);
         }
 
@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
         boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
         if (requestCode == LOGIN_USER) {
             if (isLoggedIn) {
-                Intent intent = new Intent(this, HomeScreen.class);
+                Intent intent = new Intent(this, FoodEntryActivity.class);
                 startActivity(intent);
             } else {
                 Intent intent = new Intent(this, LoginActivity.class);

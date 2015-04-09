@@ -9,7 +9,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,11 @@ public class DataHelper {
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "email TEXT," +
             "password TEXT)";
+    static String createFoodTable = "create table food (" +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "name TEXT," +
+            "image BLOB," +
+            "calories INTEGER)";
 
     //declare your columns
 
@@ -62,11 +69,13 @@ public class DataHelper {
             //Create your tables
             //Create users table
             db.execSQL(createUsersTable);
+            db.execSQL(createFoodTable);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + "users");
+            db.execSQL("DROP TABLE IF EXISTS " + "food");
             onCreate(db);
         }
     }
@@ -75,6 +84,26 @@ public class DataHelper {
 
         Cursor cursor = this.db.query("users", new String[]{"_id", "email", "password"}, null, null, null, null, null);
         return cursor;
+    }
+
+    public Cursor getFood() {
+
+        Cursor cursor = this.db.query("food", new String[]{"_id", "name", "image", "calories"}, null, null, null, null, null);
+        return cursor;
+    }
+
+    public void insertFood(Food food, Bitmap bitmap) {
+        int size = bitmap.getRowBytes() * bitmap.getHeight();
+        ByteBuffer b = ByteBuffer.allocate(size);
+        bitmap.copyPixelsToBuffer(b);
+        byte[] bytes = new byte[size];
+        b.get(bytes, 0, bytes.length);
+        ContentValues cv = new ContentValues();
+        cv.put("user", food.name);
+        cv.put("image", bytes);
+        cv.put("calories", food.calories);
+        db.insert("food", null, cv);
+
     }
 
     public void insertUser(User user) {

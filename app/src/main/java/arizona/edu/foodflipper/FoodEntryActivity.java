@@ -9,6 +9,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -18,42 +20,50 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class HomeScreen extends ActionBarActivity {
+public class FoodEntryActivity extends ActionBarActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
     private ImageView mImageView;
     File image;
+    DataHelper dh;
+    Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        dh = new DataHelper(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_screen);
+        setContentView(R.layout.activity_food_entry);
         ImageButton button = (ImageButton) findViewById(R.id.imageButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                // Ensure that there's a camera activity to handle the intent
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    // Create the File where the photo should go
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                    // Continue only if the File was successfully created
-                    if (photoFile != null) {
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(photoFile));
-                        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                    }
-                }*/
+
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(takePictureIntent, 1);
                 }
+            }
+        });
+
+        Button submit = (Button) findViewById(R.id.submitButton);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = "food";
+                EditText et = (EditText) findViewById(R.id.calorieBox);
+                int calories = Integer.parseInt(et.getText().toString());
+
+                et = (EditText) findViewById(R.id.carbBox);
+                int carbs = Integer.parseInt(et.getText().toString());
+                et = (EditText) findViewById(R.id.guessBox);
+                int fat = Integer.parseInt(et.getText().toString());
+                et = (EditText) findViewById(R.id.protBox);
+                int protein = Integer.parseInt(et.getText().toString());
+
+                Food food = new Food(-1, -1, name, calories, carbs, fat, protein);
+                if (bitmap != null)
+                    dh.insertFood(food, bitmap);
             }
         });
     }
@@ -79,16 +89,13 @@ public class HomeScreen extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            /*BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitMap = BitmapFactory.decodeFile(image.getPath(), options);
-            ImageButton ib = (ImageButton) findViewById(R.id.imageButton);
-            ib.setImageBitmap(bitMap);*/
+
             if (requestCode == 1 && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                bitmap = (Bitmap) extras.get("data");
                 ImageButton ib = (ImageButton) findViewById(R.id.imageButton);
-                ib.setImageBitmap(imageBitmap);
+                ib.setImageBitmap(bitmap);
+
             }
         }
     }
