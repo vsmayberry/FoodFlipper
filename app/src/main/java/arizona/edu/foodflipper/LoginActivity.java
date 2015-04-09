@@ -39,6 +39,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -263,6 +264,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 String password = users.getString(2);
                 if (email.equals(mEmail)) {
                     System.out.println("Found user in db");
+                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean("isLoggedIn", true);
+                    editor.commit();
                     return password.equals(mPassword);
                 }
             }
@@ -281,10 +286,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
 
             if (success) {
-                SharedPreferences settings = getPreferences(0);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean("isLoggedIn", true);
-                editor.commit();
+
 
                 finish();
             } else {

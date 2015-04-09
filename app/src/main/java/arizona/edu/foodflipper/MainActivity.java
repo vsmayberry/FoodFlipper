@@ -11,22 +11,15 @@ import android.view.MenuItem;
 public class MainActivity extends ActionBarActivity {
 
     static final int LOGIN_USER = 1;
-    boolean isLoggedIn = false;
+    public static final String PREFS_NAME = "MyPrefsFile";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        SharedPreferences settings = getPreferences(0);
-        isLoggedIn = settings.getBoolean("isLoggedIn", false);
-        //TODO implement log in with DATABASE
-        //isLoggedIn = true;
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
         if (!isLoggedIn) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_USER);
@@ -36,11 +29,21 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
         if (requestCode == LOGIN_USER) {
             if (isLoggedIn) {
                 Intent intent = new Intent(this, HomeScreen.class);
