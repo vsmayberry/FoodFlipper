@@ -268,7 +268,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
 
 
-            User user = new User();
+            User user = new User(0, mEmail);
             user.setEmail(mEmail);
             user.setPassword(mPassword);
             dh.insertUser(user);
