@@ -22,11 +22,20 @@ public class DataHelper {
 
     //declare your tables
 
-    //Patients Table
+    //Users Table
     static String createUsersTable = "create table users (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "email TEXT," +
             "password TEXT)";
+
+    //Food entry table
+    static String createFoodTable = "create table food (" +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "image BLOB," +
+            "calories TEXT," +
+            "carbs TEXT," +
+            "protein TEXT," +
+            "cal_prompt TEXT)";
 
     //declare your columns
 
@@ -34,18 +43,11 @@ public class DataHelper {
     //create your dbfunctions
 
 
-    public DataHelper(Context context) {
+    public DataHelper(LoginActivity context) {
         this.context = context;
         openDatabase();
     }
 
-    public static DataHelper getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new DataHelper(context);
-        }
-        sInstance.openDatabase();
-        return sInstance;
-    }
 
     private void openDatabase() {
         OpenHelper openHelper = new OpenHelper(this.context);
@@ -62,11 +64,13 @@ public class DataHelper {
             //Create your tables
             //Create users table
             db.execSQL(createUsersTable);
+            db.execSQL(createFoodTable);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + "users");
+            db.execSQL("DROP TABLE IF EXISTS " + "food");
             onCreate(db);
         }
     }
@@ -74,6 +78,11 @@ public class DataHelper {
     public Cursor getUsers() {
 
         Cursor cursor = this.db.query("users", new String[]{"_id", "email", "password"}, null, null, null, null, null);
+        return cursor;
+    }
+
+    public Cursor getFood() {
+        Cursor cursor = this.db.query("food", new String[]{"_id", "image", "calories", "carbs", "proteins", "cal_prompt"}, null, null, null, null, null);
         return cursor;
     }
 

@@ -142,12 +142,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
+
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -257,28 +256,22 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
-            /*try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }*/
 
             while (users.moveToNext()) {
-                if (users.getString(0).equals(mEmail)) {
+                String email = users.getString(1);
+                String password = users.getString(2);
+                if (email.equals(mEmail)) {
                     System.out.println("Found user in db");
-                    return users.getString(1).equals(mPassword);
+                    return password.equals(mPassword);
                 }
             }
 
-            // TODO: register the new account here
+
             User user = new User();
             user.setEmail(mEmail);
             user.setPassword(mPassword);
             dh.insertUser(user);
-            System.out.println("Created New User");
             return true;
         }
 
@@ -292,6 +285,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean("isLoggedIn", true);
                 editor.commit();
+
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
