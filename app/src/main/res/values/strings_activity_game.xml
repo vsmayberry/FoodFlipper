@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- Strings related to gameplay -->
+    <string name="calories">Calories: N/A</string>
+    <string name="carbs">Carbs: N/A</string>
+    <string name="fat">Fat: N/A</string>
+    <string name="protein">Protein: N/A</string>
+    <string name="time_remaining">Time Remaining</string>
+    <string name="less_than">&lt;</string>
+    <string name="greater_than">&gt;</string>
+
+</resources>
