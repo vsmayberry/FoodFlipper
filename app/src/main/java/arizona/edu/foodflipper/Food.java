@@ -5,13 +5,13 @@ package arizona.edu.foodflipper;
  */
 public class Food {
 
-    int fid      = -1;
-    int uid      = -1;
-    String name  = "";
-    int calories = -1;
-    int carbs    = -1;
-    int fat      = -1;
-    int protein  = -1;
+    private int fid      = -1;
+    private int uid      = -1;
+    private String name  = "";
+    private int calories = -1;
+    private int carbs    = -1;
+    private int fat      = -1;
+    private int protein  = -1;
     //TODO: Food image storage + getter / setter
 
 

@@ -51,7 +51,6 @@ public class GameActivity extends Activity{
         /*
          *  Set UI references
          */
-
         question = (TextView) findViewById(R.id.question);
         hints[0] = (TextView) findViewById(R.id.hint0);
         hints[1] = (TextView) findViewById(R.id.hint1);

@@ -2,7 +2,66 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:textColor">#D9141414</item>
+    </style>
+
+
+    <!-- Gameplay Styles -->
+    <style name="name">
+        <item name="android:textSize">24dp</item>
+        <item name="android:textColor">#D9D9D9</item>
+        <item name="android:background">#D9141414</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+
+    <style name="values_box">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">#14141414</item>
+    </style>
+
+    <style name="hint">
+        <item name="android:textColor">#14D914</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+
+    <style name="question">
+        <item name="android:textSize">24dp</item>
+        <item name="android:textColor">#D91414</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+
+    <style name="answer_button">
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">144dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+
+    <style name="answer_button.lt" parent="@style/answer_button">
+        <item name="android:textColor">#D9141414</item>
+        <item name="android:background">#D914D914</item>
+    </style>
+
+    <style name="answer_button.gt" parent="@style/answer_button">
+        <item name="android:textColor">#D9141414</item>
+        <item name="android:background">#D9D91414</item>
     </style>
 
 </resources>

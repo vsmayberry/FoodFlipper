@@ -8,6 +8,7 @@ import java.util.Random;
 public class GameQuestion {
 
     private Food food;
+    private String name;
     private String hintTypes[] = new String[3];
     private int hintVals[] = new int[3];
     private String questionType = "";
@@ -17,7 +18,9 @@ public class GameQuestion {
 
 
     public GameQuestion(Food food) {
+
         this.food = food;
+        this.name = food.getName();
 
         while(answerVal != -1) {
 
@@ -53,7 +56,7 @@ public class GameQuestion {
                     hintVals[1]  = food.getCarbs();
                     questionType = "Fat";
                     answerVal    = food.getFat();
-                    questionVal     = generateQuestionVal(answerVal);
+                    questionVal  = generateQuestionVal(answerVal);
                     hintTypes[2] = "Protein";
                     hintVals[2]  = food.getProtein();
                     break;
@@ -75,6 +78,10 @@ public class GameQuestion {
     }//end constructor
 
     //getters
+
+
+    public String getName() { return name; }
+
     public Food getFood() { return food; }
 
     public String[] getHintTypes() { return hintTypes; }

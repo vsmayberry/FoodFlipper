@@ -1,7 +1,8 @@
 <resources>
 
     <!-- Strings related to gameplay -->
-    <string name="calories">Calories: N/A</string>
+    <string name="name">Pineapple</string>
+    <string name="calories">Calories: \nN/A</string>
     <string name="carbs">Carbs: N/A</string>
     <string name="fat">Fat: N/A</string>
     <string name="protein">Protein: N/A</string>
