@@ -92,15 +92,15 @@ public class GameActivity extends Activity{
         String hintTexts[] = new String[3];
 
         hintTexts[0] = game.getHintTypes()[0] + ": "
-                     + ((game.getHintVals()[0] > 0) ? game.getHintVals()[0] + "" : "N/A");
+                + ((game.getHintVals()[0] >= 0) ? game.getHintVals()[0] + "" : "N/A");
         hints[0].setText(hintTexts[0]);
 
         hintTexts[1] = game.getHintTypes()[1] + ": "
-                + ((game.getHintVals()[1] > 0) ? game.getHintVals()[1] + "" : "N/A");
+                + ((game.getHintVals()[1] >= 0) ? game.getHintVals()[1] + "" : "N/A");
         hints[1].setText(hintTexts[1]);
 
         hintTexts[2] = game.getHintTypes()[2] + ": "
-                + ((game.getHintVals()[2] > 0) ? game.getHintVals()[2] + "" : "N/A");
+                + ((game.getHintVals()[2] >= 0) ? game.getHintVals()[2] + "" : "N/A");
         hints[2].setText(hintTexts[2]);
     }
 
@@ -161,7 +161,7 @@ public class GameActivity extends Activity{
          * values that the UI uses.
          */
         public void makeGuess(boolean guess) {
-
+            ImageView image = (ImageView) findViewById(R.id.food_image);
             //Update score and track correct guesses
             boolean correct = ((questionVal < answerVal) && guess)
                     || ((questionVal > answerVal) && !guess);
@@ -169,7 +169,12 @@ public class GameActivity extends Activity{
             if (correct) {
                 score += 10; // TODO: time-based bonuses
                 questions.get(questionNumber).setAnsweredCorrectly(true);
+                image.setImageResource(R.drawable.check);
             } // Note: GameQuestion.answeredCorrectly is set to false by default
+            else {
+                image.setImageResource(R.drawable.x);
+            }
+
 
             //update game state
             advance();
@@ -184,7 +189,7 @@ public class GameActivity extends Activity{
 
             //Set new Question
             this.questionNumber++;
-            if (questionNumber < questions.size()) {
+            if (questionNumber > questions.size()) {
                 gameOver();
             }//end if
             GameQuestion currentQuestion = questions.get(questionNumber);
@@ -206,6 +211,7 @@ public class GameActivity extends Activity{
          */
         void gameOver() {
             gameState = ENDING;
+            finish();
         }//end gameOver
 
         private ArrayList<GameQuestion> foodToQuestions(List<Food> food) {

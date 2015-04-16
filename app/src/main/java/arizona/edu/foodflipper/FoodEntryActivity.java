@@ -1,6 +1,7 @@
 package arizona.edu.foodflipper;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,7 @@ import java.util.Date;
 public class FoodEntryActivity extends ActionBarActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    public static final String PREFS_NAME = "MyPrefsFile";
     String mCurrentPhotoPath;
     private ImageView mImageView;
     File image;
@@ -50,7 +52,8 @@ public class FoodEntryActivity extends ActionBarActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                String userEmail = settings.getString("userEmail", null);
                 EditText et = (EditText) findViewById(R.id.nameBox);
                 String name = et.getText().toString();
 
@@ -65,6 +68,7 @@ public class FoodEntryActivity extends ActionBarActivity {
                 int protein = Integer.parseInt(et.getText().toString());
 
                 Food food = new Food(name, calories, carbs, fat, protein);
+                food.setUID(dh.getID(userEmail));
                 if (bitmap != null)
                     dh.insertFood(food, bitmap);
                 finish();

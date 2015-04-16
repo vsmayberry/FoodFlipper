@@ -139,6 +139,8 @@ public class DataHelper {
     }
 
     public int getID(String userEmail) {
+        if (userEmail == null)
+            return -1;
         int id_key = -99;
         Cursor cursor = db.query("users", null, "email =?", new String[]{userEmail}, null, null, null, null);
         if (cursor != null) {
