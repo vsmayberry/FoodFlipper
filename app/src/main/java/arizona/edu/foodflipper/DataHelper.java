@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,18 +33,18 @@ public class DataHelper {
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "uid INTEGER," +
             "name TEXT," +
-            "calories INTEGER," +
-            "carbs INTEGER," +
-            "fat INTEGER," +
-            "protein INTEGER," +
-            "image BLOB,"+
-            "FOREIGN KEY(uid) REFERENCES users(uid))";
+            "calories INTEGER DEFAULT 0," +
+            "carbs INTEGER DEFAULT 0," +
+            "fat INTEGER DEFAULT 0," +
+            "protein INTEGER DEFAULT 0," +
+            "image BLOB," +
+            "FOREIGN KEY(uid) REFERENCES users(_id))";
 
     //scores table
     static String createScoresTable = "create table scores (" +
             "_id INTEGER," +
-            "score INTEGER," +
-            "datetime INTEGER," + //TODO: change after converting to MySQL
+            "score INTEGER DEFAULT 0," +
+            "datetime INTEGER DEFAULT 0," + //TODO: change after converting to MySQL
             "FOREIGN KEY(_id) REFERENCES users(_id))";
 
 
@@ -87,6 +87,7 @@ public class DataHelper {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + "users");
             db.execSQL("DROP TABLE IF EXISTS " + "food");
+            db.execSQL("DROP TABLE IF EXISTS " + "scores");
             onCreate(db);
         }
     }
@@ -122,7 +123,7 @@ public class DataHelper {
                 do {
 
                     int id = cursor.getInt(0);
-                    String  email     = cursor.getString(1);
+                    String email = cursor.getString(1);
                     String password = cursor.getString(2);
 
                     User newUser = new User(id, email, password);
@@ -207,12 +208,12 @@ public class DataHelper {
                 do {
 
                     int id = cursor.getInt(0);
-                    int     uid      = cursor.getInt(1);
-                    String  name     = cursor.getString(2);
-                    int     calories = cursor.getInt(3);
-                    int     carbs    = cursor.getInt(4);
-                    int     fat      = cursor.getInt(5);
-                    int     protein  = cursor.getInt(6);
+                    int uid = cursor.getInt(1);
+                    String name = cursor.getString(2);
+                    int calories = cursor.getInt(3);
+                    int carbs = cursor.getInt(4);
+                    int fat = cursor.getInt(5);
+                    int protein = cursor.getInt(6);
 
                     Food newFoodItem = new Food(id, uid, name, calories, carbs, fat, protein);
 
@@ -236,11 +237,11 @@ public class DataHelper {
                 do {
 
                     int uID = cursor.getInt(1);
-                    String  name     = cursor.getString(2);
-                    int     calories = cursor.getInt(3);
-                    int     carbs    = cursor.getInt(4);
-                    int     fat      = cursor.getInt(5);
-                    int     protein  = cursor.getInt(6);
+                    String name = cursor.getString(2);
+                    int calories = cursor.getInt(3);
+                    int carbs = cursor.getInt(4);
+                    int fat = cursor.getInt(5);
+                    int protein = cursor.getInt(6);
                     //blob image = cursor.getBlob(7);
 
                     Food newFoodItem = new Food(id, uID, name, calories, carbs, fat, protein);
@@ -257,11 +258,9 @@ public class DataHelper {
 
     public void insertFood(Food food, Bitmap bitmap) {
 
-        int size = bitmap.getRowBytes() * bitmap.getHeight();
-        ByteBuffer b = ByteBuffer.allocate(size);
-        bitmap.copyPixelsToBuffer(b);
-        byte[] bytes = new byte[size];
-        b.get(bytes, 0, bytes.length);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bArray = bos.toByteArray();
 
         ContentValues cv = new ContentValues();
         cv.put("_id", food.getUID());
@@ -270,7 +269,7 @@ public class DataHelper {
         cv.put("carbs", food.getCarbs());
         cv.put("fat", food.getFat());
         cv.put("protein", food.getProtein());
-        cv.put("image", bytes);
+        cv.put("image", bArray);
         db.insert("food", null, cv);
     }
 
@@ -298,9 +297,9 @@ public class DataHelper {
                 do {
 
                     int id = cursor.getInt(0);
-                    int     score    = cursor.getInt(1);
-                    int     datetime = cursor.getInt(2);
-                    String  email    = cursor.getString(3);
+                    int score = cursor.getInt(1);
+                    int datetime = cursor.getInt(2);
+                    String email = cursor.getString(3);
 
                     Score newScore = new Score(id, score, datetime, email);
 
@@ -324,9 +323,9 @@ public class DataHelper {
                 do {
 
                     int thisID = cursor.getInt(0);
-                    int     score    = cursor.getInt(1);
-                    int     datetime = cursor.getInt(2);
-                    String  email    = cursor.getString(3);
+                    int score = cursor.getInt(1);
+                    int datetime = cursor.getInt(2);
+                    String email = cursor.getString(3);
 
                     Score newScore = new Score(thisID, score, datetime, email);
 

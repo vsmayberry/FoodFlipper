@@ -64,6 +64,7 @@ public class FoodEntryActivity extends ActionBarActivity {
                 Food food = new Food(-1, -1, name, calories, carbs, fat, protein);
                 if (bitmap != null)
                     dh.insertFood(food, bitmap);
+                finish();
             }
         });
     }
