@@ -50,8 +50,11 @@ public class FoodEntryActivity extends ActionBarActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = "food";
-                EditText et = (EditText) findViewById(R.id.calorieBox);
+
+                EditText et = (EditText) findViewById(R.id.nameBox);
+                String name = et.getText().toString();
+
+                et = (EditText) findViewById(R.id.calorieBox);
                 int calories = Integer.parseInt(et.getText().toString());
 
                 et = (EditText) findViewById(R.id.carbBox);
@@ -61,7 +64,7 @@ public class FoodEntryActivity extends ActionBarActivity {
                 et = (EditText) findViewById(R.id.protBox);
                 int protein = Integer.parseInt(et.getText().toString());
 
-                Food food = new Food(-1, -1, name, calories, carbs, fat, protein);
+                Food food = new Food(name, calories, carbs, fat, protein);
                 if (bitmap != null)
                     dh.insertFood(food, bitmap);
                 finish();

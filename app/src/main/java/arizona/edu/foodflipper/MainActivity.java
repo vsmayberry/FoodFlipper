@@ -42,10 +42,7 @@ public class MainActivity extends ActionBarActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
         if (requestCode == LOGIN_USER) {
-            if (isLoggedIn) {
-                Intent intent = new Intent(this, FoodEntryActivity.class);
-                startActivity(intent);
-            } else {
+            if (!isLoggedIn) {
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivityForResult(intent, LOGIN_USER);
             }

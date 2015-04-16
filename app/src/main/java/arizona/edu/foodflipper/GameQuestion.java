@@ -1,5 +1,7 @@
 package arizona.edu.foodflipper;
 
+import android.graphics.Bitmap;
+
 import java.util.Random;
 
 /**
@@ -76,6 +78,10 @@ public class GameQuestion {
 
     //getters
     public Food getFood() { return food; }
+
+    public Bitmap getImage() {
+        return food.getImage();
+    }
 
     public String[] getHintTypes() { return hintTypes; }
 

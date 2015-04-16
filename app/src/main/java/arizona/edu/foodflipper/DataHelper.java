@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public class DataHelper {
     public Cursor getFood() {
 
         //Doesn't return image
-        return this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein"}, null, null, null, null, null);
+        return this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein", "image"}, null, null, null, null, null);
     }
 
     public List<Food> getListOfFood() {
@@ -202,7 +203,7 @@ public class DataHelper {
         //TODO: add image
 
         List<Food> list = new ArrayList<Food>();
-        Cursor cursor = this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein"}, null, null, null, null, null);
+        Cursor cursor = this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein", "image"}, null, null, null, null, null);
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 do {
@@ -215,8 +216,10 @@ public class DataHelper {
                     int fat = cursor.getInt(5);
                     int protein = cursor.getInt(6);
 
-                    Food newFoodItem = new Food(id, uid, name, calories, carbs, fat, protein);
-
+                    Food newFoodItem = new Food(name, calories, carbs, fat, protein);
+                    newFoodItem.setFID(id);
+                    newFoodItem.setFID(uid);
+                    newFoodItem.setImage(BitmapFactory.decodeByteArray(cursor.getBlob(7), 0, cursor.getBlob(7).length));
                     list.add(newFoodItem);
                 } while (cursor.moveToNext());
             }
@@ -231,7 +234,7 @@ public class DataHelper {
         //TODO: add image
 
         List<Food> list = new ArrayList<Food>();
-        Cursor cursor = this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein"}, "_id =?", new String[]{Integer.toString(id)}, null, null, null);
+        Cursor cursor = this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein"}, "uid =?", new String[]{Integer.toString(id)}, null, null, null);
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 do {
@@ -242,10 +245,12 @@ public class DataHelper {
                     int carbs = cursor.getInt(4);
                     int fat = cursor.getInt(5);
                     int protein = cursor.getInt(6);
-                    //blob image = cursor.getBlob(7);
+                    //Bitmap image = (Bitmap) cursor.getBlob(7);
 
-                    Food newFoodItem = new Food(id, uID, name, calories, carbs, fat, protein);
-                    //newFoodItem.setImage = image;
+                    Food newFoodItem = new Food(name, calories, carbs, fat, protein);
+                    newFoodItem.setFID(cursor.getInt(0));
+                    newFoodItem.setFID(uID);
+                    newFoodItem.setImage(BitmapFactory.decodeByteArray(cursor.getBlob(7), 0, cursor.getBlob(7).length));
 
                     list.add(newFoodItem);
                 } while (cursor.moveToNext());
@@ -263,7 +268,6 @@ public class DataHelper {
         byte[] bArray = bos.toByteArray();
 
         ContentValues cv = new ContentValues();
-        cv.put("_id", food.getUID());
         cv.put("name", food.getName());
         cv.put("calories", food.getCalories());
         cv.put("carbs", food.getCarbs());
@@ -273,10 +277,7 @@ public class DataHelper {
         db.insert("food", null, cv);
     }
 
-    //TODO: Generic update food
-
-
-    /*
+        /*
      * Scores
      */
 

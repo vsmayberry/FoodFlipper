@@ -7,7 +7,9 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +45,12 @@ public class GameActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
+        setContentView(R.layout.activity_game);
         dh = new DataHelper(this);
+
+        //initialize game
         ArrayList<Food> food = (ArrayList) dh.getListOfFood();
+        game = new Game(food);
 
         /*
          *  Set UI references
@@ -59,7 +63,7 @@ public class GameActivity extends Activity{
         //mProgressView  = findViewById(R.id.game_time);
 
         Button lessThanButton = (Button) findViewById(R.id.less_than);
-        lessThanButton.setOnClickListener(new OnClickListener() {
+        lessThanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 game.makeGuess(LESS_THAN);
@@ -74,8 +78,6 @@ public class GameActivity extends Activity{
             }
         });
 
-        //initialize game
-        game = new Game(food);
 
 
     }//end onCreate
@@ -182,7 +184,7 @@ public class GameActivity extends Activity{
 
             //Set new Question
             this.questionNumber++;
-            if (questionNumber <= questions.size()) {
+            if (questionNumber < questions.size()) {
                 gameOver();
             }//end if
             GameQuestion currentQuestion = questions.get(questionNumber);
@@ -193,6 +195,8 @@ public class GameActivity extends Activity{
             questionType = currentQuestion.getQuestionType();
             questionVal  = currentQuestion.getQuestionVal();
             answerVal    = currentQuestion.getAnswerVal();
+            ImageView view = (ImageView) findViewById(R.id.food_image);
+            view.setImageBitmap(currentQuestion.getImage());
 
         }//end advance
 
