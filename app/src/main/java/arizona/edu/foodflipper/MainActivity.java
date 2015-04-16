@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -23,11 +24,7 @@ public class MainActivity extends ActionBarActivity {
         if (!isLoggedIn) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_USER);
-        } else {
-            Intent intent = new Intent(this, FoodEntryActivity.class);
-            startActivity(intent);
         }
-
 
     }
 
@@ -45,10 +42,7 @@ public class MainActivity extends ActionBarActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
         if (requestCode == LOGIN_USER) {
-            if (isLoggedIn) {
-                Intent intent = new Intent(this, FoodEntryActivity.class);
-                startActivity(intent);
-            } else {
+            if (!isLoggedIn) {
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivityForResult(intent, LOGIN_USER);
             }
@@ -68,5 +62,20 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onPlayGameButtonClick(View v) {
+        Intent intent = new Intent(this, GameActivity.class);
+        startActivity(intent);
+    }
+
+    public void onFoodEntryButtonClick(View v) {
+        Intent intent = new Intent(this, FoodEntryActivity.class);
+        startActivity(intent);
+    }
+
+    public void onViewScoresButtonClick(View v) {
+        Intent intent = new Intent(this, ViewScoresActivity.class);
+        startActivity(intent);
     }
 }

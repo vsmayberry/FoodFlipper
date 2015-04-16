@@ -7,7 +7,9 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +45,12 @@ public class GameActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
+        setContentView(R.layout.activity_game);
         dh = new DataHelper(this);
+
+        //initialize game
         ArrayList<Food> food = (ArrayList) dh.getListOfFood();
+        game = new Game(food);
 
         /*
          *  Set UI references
@@ -58,7 +62,7 @@ public class GameActivity extends Activity{
         //mProgressView  = findViewById(R.id.game_time);
 
         Button lessThanButton = (Button) findViewById(R.id.less_than);
-        lessThanButton.setOnClickListener(new OnClickListener() {
+        lessThanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 game.makeGuess(LESS_THAN);
@@ -73,8 +77,6 @@ public class GameActivity extends Activity{
             }
         });
 
-        //initialize game
-        game = new Game(food);
 
 
     }//end onCreate
@@ -89,15 +91,15 @@ public class GameActivity extends Activity{
         String hintTexts[] = new String[3];
 
         hintTexts[0] = game.getHintTypes()[0] + ": "
-                     + ((game.getHintVals()[0] > 0) ? game.getHintVals()[0] + "" : "N/A");
+                + ((game.getHintVals()[0] >= 0) ? game.getHintVals()[0] + "" : "N/A");
         hints[0].setText(hintTexts[0]);
 
         hintTexts[1] = game.getHintTypes()[1] + ": "
-                + ((game.getHintVals()[1] > 0) ? game.getHintVals()[1] + "" : "N/A");
+                + ((game.getHintVals()[1] >= 0) ? game.getHintVals()[1] + "" : "N/A");
         hints[1].setText(hintTexts[1]);
 
         hintTexts[2] = game.getHintTypes()[2] + ": "
-                + ((game.getHintVals()[2] > 0) ? game.getHintVals()[2] + "" : "N/A");
+                + ((game.getHintVals()[2] >= 0) ? game.getHintVals()[2] + "" : "N/A");
         hints[2].setText(hintTexts[2]);
     }
 
@@ -158,7 +160,7 @@ public class GameActivity extends Activity{
          * values that the UI uses.
          */
         public void makeGuess(boolean guess) {
-
+            ImageView image = (ImageView) findViewById(R.id.food_image);
             //Update score and track correct guesses
             boolean correct = ((questionVal < answerVal) && guess)
                     || ((questionVal > answerVal) && !guess);
@@ -166,7 +168,12 @@ public class GameActivity extends Activity{
             if (correct) {
                 score += 10; // TODO: time-based bonuses
                 questions.get(questionNumber).setAnsweredCorrectly(true);
+                image.setImageResource(R.drawable.check);
             } // Note: GameQuestion.answeredCorrectly is set to false by default
+            else {
+                image.setImageResource(R.drawable.x);
+            }
+
 
             //update game state
             advance();
@@ -181,7 +188,7 @@ public class GameActivity extends Activity{
 
             //Set new Question
             this.questionNumber++;
-            if (questionNumber <= questions.size()) {
+            if (questionNumber > questions.size()) {
                 gameOver();
             }//end if
             GameQuestion currentQuestion = questions.get(questionNumber);
@@ -192,6 +199,8 @@ public class GameActivity extends Activity{
             questionType = currentQuestion.getQuestionType();
             questionVal  = currentQuestion.getQuestionVal();
             answerVal    = currentQuestion.getAnswerVal();
+            ImageView view = (ImageView) findViewById(R.id.food_image);
+            view.setImageBitmap(currentQuestion.getImage());
 
         }//end advance
 
@@ -201,6 +210,7 @@ public class GameActivity extends Activity{
          */
         void gameOver() {
             gameState = ENDING;
+            finish();
         }//end gameOver
 
         private ArrayList<GameQuestion> foodToQuestions(List<Food> food) {

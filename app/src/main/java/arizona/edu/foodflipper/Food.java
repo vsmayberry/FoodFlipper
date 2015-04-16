@@ -1,24 +1,25 @@
 package arizona.edu.foodflipper;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by Josh on 4/9/15.
  */
 public class Food {
 
-    private int fid      = -1;
-    private int uid      = -1;
-    private String name  = "";
-    private int calories = -1;
-    private int carbs    = -1;
-    private int fat      = -1;
-    private int protein  = -1;
+    int fid = -1;
+    int uid = -1;
+    String name = "";
+    int calories = -1;
+    int carbs = -1;
+    int fat = -1;
+    int protein = -1;
+    Bitmap image;
     //TODO: Food image storage + getter / setter
 
 
-    public Food(int fid, int uid, String name, int calories, int carbs, int fat, int protein ) {
-        this.fid      = fid;
-        this.uid      = uid;
-        this.name     = name;
+    public Food(String name, int calories, int carbs, int fat, int protein) {
+        this.name = name;
         this.calories = calories;
         this.carbs    = carbs;
         this.fat      = fat;

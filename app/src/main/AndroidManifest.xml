@@ -8,6 +8,7 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!--
  To retrieve OAuth 2.0 tokens or invalidate tokens to disconnect a user. This disconnect
@@ -28,7 +29,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,6 +42,12 @@
         <activity
             android:name=".FoodEntryActivity"
             android:label="@string/title_activity_food_entry" />
+        <activity
+            android:name=".GameActivity"
+            android:label="FoodFlipper" />
+        <activity
+            android:name=".ViewScoresActivity"
+            android:label="@string/title_activity_view_scores"></activity>
     </application>
 
 </manifest>
