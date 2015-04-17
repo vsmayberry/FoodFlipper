@@ -218,9 +218,7 @@ public class DataHelper {
                     int fat = cursor.getInt(5);
                     int protein = cursor.getInt(6);
 
-                    Food newFoodItem = new Food(name, calories, carbs, fat, protein);
-                    newFoodItem.setFID(id);
-                    newFoodItem.setFID(uid);
+                    Food newFoodItem = new Food(id, uid, name, calories, carbs, fat, protein);
                     newFoodItem.setImage(BitmapFactory.decodeByteArray(cursor.getBlob(7), 0, cursor.getBlob(7).length));
                     list.add(newFoodItem);
                 } while (cursor.moveToNext());
@@ -249,9 +247,7 @@ public class DataHelper {
                     int protein = cursor.getInt(6);
                     //Bitmap image = (Bitmap) cursor.getBlob(7);
 
-                    Food newFoodItem = new Food(name, calories, carbs, fat, protein);
-                    newFoodItem.setFID(cursor.getInt(0));
-                    newFoodItem.setFID(uID);
+                    Food newFoodItem = new Food(cursor.getInt(0), uID, name, calories, carbs, fat, protein);
                     newFoodItem.setImage(BitmapFactory.decodeByteArray(cursor.getBlob(7), 0, cursor.getBlob(7).length));
 
                     list.add(newFoodItem);

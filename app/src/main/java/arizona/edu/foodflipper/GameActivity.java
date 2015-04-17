@@ -1,12 +1,15 @@
 package arizona.edu.foodflipper;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,9 +37,9 @@ public class GameActivity extends Activity{
     /*
      * UI References
      */
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
     //private View gameTimeProgress;
+    private TextView name;
+    private ImageButton image;
     private TextView hints[] = new TextView[3];
     private TextView question;
 
@@ -84,6 +87,12 @@ public class GameActivity extends Activity{
 
     private void updateUI(){
 
+        //update name
+        name.setText(game.getName());
+
+        //update image
+        image.setBackground(new BitmapDrawable(getResources(), game.getImage()));
+
         //update question
         question.setText(game.getQuestionType() + ": " + game.getQuestionVal());
 
@@ -120,11 +129,13 @@ public class GameActivity extends Activity{
         private ArrayList<GameQuestion> questions;
         private int questionNumber;
 
+        private String name;
+        private Bitmap image;
         private String questionType;
         private int questionVal;
         private int answerVal;
-        String hintTypes[] = new String[3];
-        int hintVals[] = new int[3];
+        private String hintTypes[] = new String[3];
+        private int hintVals[] = new int[3];
 
         private int score = 0;
 
@@ -140,6 +151,10 @@ public class GameActivity extends Activity{
         public int getGameState() { return gameState; }
 
         public int getQuestionNumber() { return questionNumber; }
+
+        public String getName() { return name; }
+
+        public Bitmap getImage() { return image; }
 
         public String getQuestionType() { return questionType; }
 
@@ -194,6 +209,7 @@ public class GameActivity extends Activity{
             GameQuestion currentQuestion = questions.get(questionNumber);
 
             //Update state
+            name         = currentQuestion.getName();
             hintTypes    = currentQuestion.getHintTypes();
             hintVals     = currentQuestion.getHintVals();
             questionType = currentQuestion.getQuestionType();
