@@ -1,0 +1,15 @@
+<resources>
+    <string name="final_score">Score: ####</string>
+    <string name="answer_line0">You guessed that [NAME]</string>
+    <string name="answer_line1">had [gt or lt]  [questionVal][questionTpye]</string>
+    <string name="answer_line2">It actually has [answerVal][questionType]</string>
+    <string name="hintType0">[hintType0]</string>
+    <string name="hintType1">[hintType1]</string>
+    <string name="hintType2">[hintType2]</string>
+    <string name="hintVal0">[hintVal0]</string>
+    <string name="hintVal1">[hintVal1]</string>
+    <string name="hintVal2">[hintVal2]</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="new_game">New Game</string>
+    <string name="report_food">Report Food</string>
+</resources>

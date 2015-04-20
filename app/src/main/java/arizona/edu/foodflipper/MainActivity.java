@@ -21,10 +21,10 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
-        if (!isLoggedIn) {
+        /*if (!isLoggedIn) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_USER);
-        }
+        }*/
 
     }
 

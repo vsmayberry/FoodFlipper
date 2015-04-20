@@ -1,14 +1,14 @@
 package arizona.edu.foodflipper;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,12 +48,12 @@ public class GameActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_game_over);
         dh = new DataHelper(this);
 
         //initialize game
         ArrayList<Food> food = (ArrayList) dh.getListOfFood();
-        game = new Game(food);
+        game = new Game(food, this);
 
         /*
          *  Set UI references
@@ -121,6 +121,7 @@ public class GameActivity extends Activity{
      */
     private class Game {
 
+        Context context;
         int gameState = -1;
         final static int STARTING = 1;
         final static int RUNNING = 2;
@@ -139,7 +140,8 @@ public class GameActivity extends Activity{
 
         private int score = 0;
 
-        public Game(ArrayList<Food> food) {
+        public Game(ArrayList<Food> food, Context context) {
+            this.context = context;
             questions = foodToQuestions(food);
             questionNumber = -1;
             gameState = STARTING;
@@ -189,7 +191,6 @@ public class GameActivity extends Activity{
                 image.setImageResource(R.drawable.x);
             }
 
-
             //update game state
             advance();
         }//end makeGuess
@@ -203,7 +204,7 @@ public class GameActivity extends Activity{
 
             //Set new Question
             this.questionNumber++;
-            if (questionNumber > questions.size()) {
+            if (questions.size() == 0 || questionNumber > questions.size()) {
                 gameOver();
             }//end if
             GameQuestion currentQuestion = questions.get(questionNumber);
@@ -221,12 +222,18 @@ public class GameActivity extends Activity{
         }//end advance
 
         /*
-         * Determines final score, calculates other statistics, inserts
-         * the score into the database.
+         * Cleans up shop and launches GameOverActivity
          */
-        void gameOver() {
+        public void gameOver() {
+
             gameState = ENDING;
-            finish();
+
+
+            Intent intent = new Intent(this.context, MainActivity.class);
+            intent.putExtra("questions", questions);
+            startActivity(intent);
+
+            //finish();
         }//end gameOver
 
         private ArrayList<GameQuestion> foodToQuestions(List<Food> food) {

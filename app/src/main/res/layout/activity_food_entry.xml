@@ -48,7 +48,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Actual Calories"
+            android:text="Calories"
             android:layout_alignParentRight="true"
             android:layout_alignParentLeft="true"
             android:id="@+id/calorieLabel"
@@ -67,30 +67,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Calories Guess"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentLeft="true"
-            android:id="@+id/guessLabel"
-            android:layout_below="@+id/calorieBox" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/guessBox"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/guessLabel"
-            android:imeOptions="actionNext"
-            android:inputType="number" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Actual Carbs"
+            android:text="Carbs"
             android:layout_alignParentRight="true"
             android:layout_alignParentLeft="true"
             android:id="@+id/carbLabel"
-            android:layout_below="@+id/guessBox" />
+            android:layout_below="@+id/calorieBox" />
 
         <EditText
             android:layout_width="wrap_content"
@@ -102,15 +83,34 @@
             android:imeOptions="actionNext"
             android:inputType="number" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fat"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/fatLabel"
+            android:layout_below="@+id/carbBox" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fatBox"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/fatLabel"
+            android:imeOptions="actionNext"
+            android:inputType="number" />
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Actual Protien"
+            android:text="Protien"
             android:layout_alignParentRight="true"
             android:layout_alignParentLeft="true"
             android:id="@+id/protLabel"
-            android:layout_below="@+id/carbBox" />
+            android:layout_below="@+id/fatBox" />
 
         <EditText
             android:layout_width="wrap_content"

@@ -62,7 +62,7 @@ public class FoodEntryActivity extends ActionBarActivity {
 
                 et = (EditText) findViewById(R.id.carbBox);
                 int carbs = Integer.parseInt(et.getText().toString());
-                et = (EditText) findViewById(R.id.guessBox);
+                et = (EditText) findViewById(R.id.fatBox);
                 int fat = Integer.parseInt(et.getText().toString());
                 et = (EditText) findViewById(R.id.protBox);
                 int protein = Integer.parseInt(et.getText().toString());

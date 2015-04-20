@@ -1,13 +1,15 @@
 package arizona.edu.foodflipper;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Random;
 
 /**
  * Created by Josh on 4/10/15.
  */
-public class GameQuestion {
+public class GameQuestion implements Parcelable {
 
     private Food food;
     private String name;
@@ -79,6 +81,10 @@ public class GameQuestion {
 
     }//end constructor
 
+    public GameQuestion(Parcel in) {
+
+    }
+
     //getters
 
 
@@ -115,4 +121,43 @@ public class GameQuestion {
         }while(question != answer);
         return question;
     }//end generateQuestionVal
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        /*
+        private Food food;
+        private String name;
+        private String hintTypes[] = new String[3];
+        private int hintVals[] = new int[3];
+        private String questionType = "";
+        private int questionVal = -1;
+        private int answerVal = -1;
+        private boolean answeredCorrectly = false;
+        */
+
+        dest.writeString(this.name);
+        dest.writeStringArray(this.hintTypes);
+        dest.writeIntArray(this.hintVals);
+        dest.writeString(this.questionType);
+        dest.writeInt(this.questionVal);
+        dest.writeInt(this.answerVal);
+        dest.writeBooleanArray(new boolean[]{this.answeredCorrectly});
+
+
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public GameQuestion createFromParcel(Parcel in){
+            return new GameQuestion(in);
+        }
+
+        public GameQuestion[] newArray(int size) {
+            return new GameQuestion[size];
+        }
+    };
 }

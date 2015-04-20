@@ -231,7 +231,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         int IS_PRIMARY = 1;
     }
 
-
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -258,7 +257,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected Boolean doInBackground(Void... params) {
 
-
+            //TODO: more efficient query for login checking
             while (users.moveToNext()) {
                 String email = users.getString(1);
                 String password = users.getString(2);
@@ -272,7 +271,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                     return password.equals(mPassword);
                 }
             }
-
 
             User user = new User(0, mEmail);
             user.setEmail(mEmail);
