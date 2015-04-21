@@ -26,7 +26,7 @@ public class DataHelper {
     //users table
     static String createUsersTable = "create table users (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "email TEXT," +
+            "user TEXT," +
             "password TEXT)";
 
     //food table
@@ -44,8 +44,9 @@ public class DataHelper {
     //scores table
     static String createScoresTable = "create table scores (" +
             "_id INTEGER," +
+            "user TEXT," +
             "score INTEGER DEFAULT 0," +
-            "datetime INTEGER DEFAULT 0," + //TODO: change after converting to MySQL
+            "datetime DATETIME DEFAULT CURRENT_TIMESTAMP," + //TODO: change after converting to MySQL
             "FOREIGN KEY(_id) REFERENCES users(_id))";
 
 
@@ -104,13 +105,13 @@ public class DataHelper {
 
     public Cursor getUsers() {
 
-        return db.query("users", new String[]{"_id", "email", "password"}, null, null, null, null, null);
+        return db.query("users", new String[]{"_id", "user", "password"}, null, null, null, null, null);
     }
 
     public void insertUser(User user) {
 
         ContentValues cv = new ContentValues();
-        cv.put("email", user.getEmail());
+        cv.put("user", user.getUser());
         cv.put("password", user.getPassword());
         db.insert("users", null, cv);
 
@@ -118,16 +119,16 @@ public class DataHelper {
 
     public List<User> getListOfUsers() {
         List<User> list = new ArrayList<User>();
-        Cursor cursor = this.db.query("users", new String[]{"_id", "email"}, null, null, null, null, null);
+        Cursor cursor = this.db.query("users", new String[]{"_id", "user"}, null, null, null, null, null);
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 do {
 
                     int id = cursor.getInt(0);
-                    String email = cursor.getString(1);
+                    String user = cursor.getString(1);
                     String password = cursor.getString(2);
 
-                    User newUser = new User(id, email, password);
+                    User newUser = new User(user, password);
 
                     list.add(newUser);
                 } while (cursor.moveToNext());
@@ -138,11 +139,11 @@ public class DataHelper {
         return list;
     }
 
-    public int getID(String userEmail) {
-        if (userEmail == null)
+    public int getID(String user) {
+        if (user == null)
             return -1;
         int id_key = -99;
-        Cursor cursor = db.query("users", null, "email =?", new String[]{userEmail}, null, null, null, null);
+        Cursor cursor = db.query("users", null, "user =?", new String[]{user}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             id_key = cursor.getInt(0);
@@ -150,9 +151,9 @@ public class DataHelper {
         return id_key;
     }
 
-    public String getPassword(String userEmail) {
+    public String getPassword(String user) {
         String password = "undefined";
-        Cursor cursor = db.query("users", null, "email =?", new String[]{userEmail}, null, null, null, null);
+        Cursor cursor = db.query("users", null, "user =?", new String[]{user}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             password = cursor.getString(2);
@@ -160,11 +161,11 @@ public class DataHelper {
         return password;
     }
 
-    public void updateUserPassword(String userEmail, String password) {
+    public void updateUserPassword(String user, String password) {
 
         ContentValues values = new ContentValues();
         values.put("password", password);
-        db.update("users", values, "email=?", new String[]{userEmail});
+        db.update("users", values, "user=?", new String[]{user});
     }
 
     public void updateUserPassword(int id_key, String password) {
@@ -201,9 +202,6 @@ public class DataHelper {
     }
 
     public List<Food> getListOfFood() {
-
-        //TODO: add image
-
         List<Food> list = new ArrayList<Food>();
         Cursor cursor = this.db.query("food", new String[]{"_id", "uid", "name", "calories", "carbs", "fat", "protein", "image"}, null, null, null, null, null);
         if (cursor.getCount() > 0) {
@@ -282,7 +280,7 @@ public class DataHelper {
     public Cursor getScores() {
 
         //Doesn't return image
-        return this.db.query("scores, users", new String[]{"_id", "score", "datetime", "email"}, null, null, null, null, "score DESC");
+        return this.db.query("scores, users", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
     }
 
     public List<Score> getListOfScores() {
@@ -290,7 +288,7 @@ public class DataHelper {
         //TODO: update to MySQL date / timestamp
 
         List<Score> list = new ArrayList<Score>();
-        Cursor cursor = this.db.query("score, users", new String[]{"_id", "score", "datetime", "email"}, null, null, null, null, "score DESC");
+        Cursor cursor = this.db.query("scores", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 do {
@@ -298,9 +296,10 @@ public class DataHelper {
                     int id = cursor.getInt(0);
                     int score = cursor.getInt(1);
                     int datetime = cursor.getInt(2);
-                    String email = cursor.getString(3);
+                    String user = cursor.getString(3);
 
-                    Score newScore = new Score(id, score, datetime, email);
+                    Score newScore = new Score(score, user);
+
 
                     list.add(newScore);
                 } while (cursor.moveToNext());
@@ -316,7 +315,7 @@ public class DataHelper {
         //TODO: update to MySQL date / timestamp
 
         List<Score> list = new ArrayList<Score>();
-        Cursor cursor = this.db.query("score, users", new String[]{"_id", "score", "datetime", "email"}, "_id =?", new String[]{Integer.toString(id)}, null, null, "scores DESC");
+        Cursor cursor = this.db.query("scores, users", new String[]{"_id", "score", "datetime", "user"}, "_id =?", new String[]{Integer.toString(id)}, null, null, "score DESC");
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 do {
@@ -324,10 +323,9 @@ public class DataHelper {
                     int thisID = cursor.getInt(0);
                     int score = cursor.getInt(1);
                     int datetime = cursor.getInt(2);
-                    String email = cursor.getString(3);
+                    String user = cursor.getString(3);
 
-                    Score newScore = new Score(thisID, score, datetime, email);
-
+                    Score newScore = new Score(score, user);
                     list.add(newScore);
                 } while (cursor.moveToNext());
             }
@@ -340,11 +338,9 @@ public class DataHelper {
     public void insertScore(Score score) {
 
         ContentValues cv = new ContentValues();
-        cv.put("_id", score.getID());
         cv.put("score", score.getScore());
-        cv.put("datetime", score.getDatetime());
-        cv.put("email", score.getEmail());
-        db.insert("users", null, cv);
+        cv.put("user", score.getUser());
+        db.insert("scores", null, cv);
     }
 
     //TODO: Generic update score

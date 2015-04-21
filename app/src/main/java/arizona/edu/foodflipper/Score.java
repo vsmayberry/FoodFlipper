@@ -8,28 +8,37 @@ public class Score {
     int uid = -1;
     int score = -1;
     int datetime = -1;
-    String email = "";
+    String user = "";
 
-    public Score(int uid, int score, int datetime, String email) {
+    public Score(int score, String email) {
         this.uid = uid;
         this.score = score;
         this.datetime = datetime;
-        this.email = email;
+        this.user = user;
+    }
+
+    public String toString() {
+        return user + " : " + score;
     }
 
     public int getID() {
         return uid;
     }
 
+
     public int getScore() {
         return score;
+    }
+
+    public void setEmail(String user) {
+        this.user = user;
     }
 
     public int getDatetime() {
         return datetime;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUser() {
+        return user;
     }
 }

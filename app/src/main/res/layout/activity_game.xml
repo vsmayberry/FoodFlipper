@@ -8,12 +8,10 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="arizona.edu.foodflipper.GameActivity">
 
-    <FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/food_image_box"
-        >
+        android:id="@+id/food_image_box">
 
         <ImageView
             android:layout_width="match_parent"
@@ -27,10 +25,6 @@
             android:src="@drawable/pineapple"
             android:contentDescription="Image of the food" />
 
-        <TextView
-            style="@style/name"
-            android:text="@string/name"
-            android:id="@+id/name" />
 
     </FrameLayout>
 
@@ -40,45 +34,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@+id/food_image_box"
-        >
-
-        <LinearLayout
-            android:id="@+id/hints"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_below="@+id/food_image"
-            android:layout_weight="0.3" >
-
-            <TextView
-                style="@style/hint"
-                android:text="@string/carbs"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentLeft="true"
-                android:id="@+id/hint0" />
-
-            <TextView
-                style="@style/hint"
-                android:text="@string/fat"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentLeft="true"
-                android:id="@+id/hint1" />
-
-            <TextView
-                style="@style/hint"
-                android:text="@string/protein"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentLeft="true"
-                android:id="@+id/hint2" />
-
-        </LinearLayout>
+        android:layout_below="@+id/food_image_box">
 
         <TextView
             style="@style/question"
             android:text="@string/calories"
             android:id="@+id/question"
-            android:layout_weight="0.7" />
+            android:layout_weight="0.7"
+            android:textAlignment="textStart" />
 
     </LinearLayout>
 
@@ -87,8 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_below="@+id/food_values"
-        >
+        android:layout_below="@+id/food_values">
 
         <Button
             style="@style/answer_button.lt"

@@ -4,14 +4,30 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.List;
 
 
 public class ViewScoresActivity extends ActionBarActivity {
 
+    DataHelper dh;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_scores);
+        dh = new DataHelper(this);
+        try {
+            List<Score> scoreList;
+            scoreList = dh.getListOfScores();
+
+            ArrayAdapter<Score> scoreArrayAdapter = new ArrayAdapter<Score>(this, android.R.layout.simple_list_item_1, scoreList);
+            ListView lv = (ListView) findViewById(R.id.scoreList);
+            lv.setAdapter(scoreArrayAdapter);
+        } catch (Exception e) {
+
+        }
+
     }
 
 

@@ -2,14 +2,12 @@ package arizona.edu.foodflipper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,7 +20,7 @@ import java.util.List;
  * questions, then displays / cycles through the questions until time runs
  * out or all of the questions have been answered.
  */
-public class GameActivity extends Activity{
+public class GameActivity extends Activity {
 
     /*
      * Tasks, Preferences, etc.
@@ -30,39 +28,22 @@ public class GameActivity extends Activity{
     public static final String PREFS_NAME = "MyPrefsFile";
     public static final boolean LESS_THAN = false;
     public static final boolean GREATER_THAN = true;
+    int timerDelay = 3000;
     DataHelper dh;
     private Game game;
-
-
-    /*
-     * UI References
-     */
-    //private View gameTimeProgress;
-    private TextView name;
-    private ImageButton image;
-    private TextView hints[] = new TextView[3];
-    private TextView question;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game_over);
+        setContentView(R.layout.activity_game);
         dh = new DataHelper(this);
 
         //initialize game
         ArrayList<Food> food = (ArrayList) dh.getListOfFood();
         game = new Game(food, this);
 
-        /*
-         *  Set UI references
-         */
-        question = (TextView) findViewById(R.id.question);
-        hints[0] = (TextView) findViewById(R.id.hint0);
-        hints[1] = (TextView) findViewById(R.id.hint1);
-        hints[2] = (TextView) findViewById(R.id.hint2);
-        //mProgressView  = findViewById(R.id.game_time);
 
         Button lessThanButton = (Button) findViewById(R.id.less_than);
         lessThanButton.setOnClickListener(new View.OnClickListener() {
@@ -81,36 +62,9 @@ public class GameActivity extends Activity{
         });
 
 
-
     }//end onCreate
 
 
-    private void updateUI(){
-
-        //update name
-        name.setText(game.getName());
-
-        //update image
-        image.setBackground(new BitmapDrawable(getResources(), game.getImage()));
-
-        //update question
-        question.setText(game.getQuestionType() + ": " + game.getQuestionVal());
-
-        //update hints
-        String hintTexts[] = new String[3];
-
-        hintTexts[0] = game.getHintTypes()[0] + ": "
-                + ((game.getHintVals()[0] >= 0) ? game.getHintVals()[0] + "" : "N/A");
-        hints[0].setText(hintTexts[0]);
-
-        hintTexts[1] = game.getHintTypes()[1] + ": "
-                + ((game.getHintVals()[1] >= 0) ? game.getHintVals()[1] + "" : "N/A");
-        hints[1].setText(hintTexts[1]);
-
-        hintTexts[2] = game.getHintTypes()[2] + ": "
-                + ((game.getHintVals()[2] >= 0) ? game.getHintVals()[2] + "" : "N/A");
-        hints[2].setText(hintTexts[2]);
-    }
 
 
 
@@ -130,13 +84,9 @@ public class GameActivity extends Activity{
         private ArrayList<GameQuestion> questions;
         private int questionNumber;
 
-        private String name;
-        private Bitmap image;
-        private String questionType;
+
         private int questionVal;
         private int answerVal;
-        private String hintTypes[] = new String[3];
-        private int hintVals[] = new int[3];
 
         private int score = 0;
 
@@ -150,23 +100,6 @@ public class GameActivity extends Activity{
         }//end Constructor
 
 
-        public int getGameState() { return gameState; }
-
-        public int getQuestionNumber() { return questionNumber; }
-
-        public String getName() { return name; }
-
-        public Bitmap getImage() { return image; }
-
-        public String getQuestionType() { return questionType; }
-
-        public int getQuestionVal() { return questionVal; }
-
-        public int getScore() { return score; }
-
-        public String[] getHintTypes() { return hintTypes; }
-
-        public int[] getHintVals() { return hintVals; }
 
         /*
          * makeGuess
@@ -177,6 +110,18 @@ public class GameActivity extends Activity{
          * values that the UI uses.
          */
         public void makeGuess(boolean guess) {
+            CountDownTimer timer = new CountDownTimer(timerDelay, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    //update game state
+                    advance();
+                }
+            };
             ImageView image = (ImageView) findViewById(R.id.food_image);
             //Update score and track correct guesses
             boolean correct = ((questionVal < answerVal) && guess)
@@ -188,11 +133,11 @@ public class GameActivity extends Activity{
                 image.setImageResource(R.drawable.check);
             } // Note: GameQuestion.answeredCorrectly is set to false by default
             else {
+                score += 3;
                 image.setImageResource(R.drawable.x);
             }
 
-            //update game state
-            advance();
+            timer.start();
         }//end makeGuess
 
         /*
@@ -200,24 +145,25 @@ public class GameActivity extends Activity{
          * Checks for end of game,
          * updates game state to match that of next question
          */
-        private void advance(){
+        private void advance() {
 
             //Set new Question
             this.questionNumber++;
             if (questions.size() == 0 || questionNumber > questions.size()) {
                 gameOver();
             }//end if
-            GameQuestion currentQuestion = questions.get(questionNumber);
-
-            //Update state
-            name         = currentQuestion.getName();
-            hintTypes    = currentQuestion.getHintTypes();
-            hintVals     = currentQuestion.getHintVals();
-            questionType = currentQuestion.getQuestionType();
-            questionVal  = currentQuestion.getQuestionVal();
-            answerVal    = currentQuestion.getAnswerVal();
-            ImageView view = (ImageView) findViewById(R.id.food_image);
-            view.setImageBitmap(currentQuestion.getImage());
+            try {
+                GameQuestion currentQuestion = questions.get(questionNumber);
+                questionVal = currentQuestion.getQuestionVal();
+                answerVal = currentQuestion.getAnswerVal();
+                //update image
+                ImageView view = (ImageView) findViewById(R.id.food_image);
+                view.setImageBitmap(currentQuestion.getImage());
+                TextView questionView = (TextView) findViewById(R.id.question);
+                questionView.setText(currentQuestion.getQuestionType() + "" + currentQuestion.getQuestionVal());
+            } catch (Exception e) {
+                finish();
+            }
 
         }//end advance
 
@@ -228,12 +174,12 @@ public class GameActivity extends Activity{
 
             gameState = ENDING;
 
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            String email = settings.getString("userEmail", "Anonymous");
+            Score score = new Score(100, email);
+            dh.insertScore(score);
 
-            Intent intent = new Intent(this.context, MainActivity.class);
-            intent.putExtra("questions", questions);
-            startActivity(intent);
-
-            //finish();
+            finish();
         }//end gameOver
 
         private ArrayList<GameQuestion> foodToQuestions(List<Food> food) {
