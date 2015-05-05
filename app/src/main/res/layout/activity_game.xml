@@ -2,45 +2,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="arizona.edu.foodflipper.GameActivity">
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/food_image_box"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/food_image_box">
+        android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/food_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/food_image"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
             android:layout_alignParentStart="true"
-            android:src="@drawable/pineapple"
-            android:contentDescription="Image of the food" />
+            android:layout_alignParentTop="true"
+            android:contentDescription="Image of the food"
+            android:src="@drawable/pineapple" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:text="FLAG" />
 
 
     </FrameLayout>
 
     <LinearLayout
-        style="@style/values_box"
         android:id="@+id/food_values"
+        style="@style/values_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/food_image_box">
+        android:layout_below="@+id/food_image_box"
+        android:orientation="horizontal">
 
         <TextView
-            style="@style/question"
-            android:text="@string/calories"
             android:id="@+id/question"
+            style="@style/question"
             android:layout_weight="0.7"
+            android:text="@string/calories"
             android:textAlignment="textStart" />
 
     </LinearLayout>
@@ -49,20 +56,20 @@
         android:id="@+id/answer_buttons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_below="@+id/food_values">
+        android:layout_below="@+id/food_values"
+        android:orientation="horizontal">
 
         <Button
-            style="@style/answer_button.lt"
-            android:text="@string/less_than"
             android:id="@+id/less_than"
-            android:layout_weight="0.5" />
+            style="@style/answer_button.lt"
+            android:layout_weight="0.5"
+            android:text="@string/less_than" />
 
         <Button
-            style="@style/answer_button.gt"
-            android:text="@string/greater_than"
             android:id="@+id/greater_than"
-            android:layout_weight="0.5" />
+            style="@style/answer_button.gt"
+            android:layout_weight="0.5"
+            android:text="@string/greater_than" />
 
     </LinearLayout>
 
