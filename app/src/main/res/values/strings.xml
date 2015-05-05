@@ -6,5 +6,6 @@
     <string name="title_activity_food_entry">Create Food Entry</string>
     <string name="title_activity_view_scores">ViewScoresActivity</string>
     <string name="title_activity_view_score">ViewScoreActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>

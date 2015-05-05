@@ -371,6 +371,10 @@ public class DataHelper {
         db.insert("scores", null, cv);
     }
 
+    public void setUserHome(String string) {
+        //TODO change users location
+    }
+
     //TODO: Generic update score
 
     private static class OpenHelper extends SQLiteOpenHelper {
