@@ -11,24 +11,31 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataHelper {
     private static final String DATABASE_NAME = "food_flipper.db";
     private static final int DATABASE_VERSION = 1;
-    private Context context;
-    private SQLiteDatabase db;
     static DataHelper sInstance;
-
     //users table
     static String createUsersTable = "create table users (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user TEXT," +
             "password TEXT)";
-
     //food table
     static String createFoodTable = "create table food (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -40,7 +47,6 @@ public class DataHelper {
             "protein INTEGER DEFAULT 0," +
             "image BLOB," +
             "FOREIGN KEY(uid) REFERENCES users(_id))";
-
     //scores table
     static String createScoresTable = "create table scores (" +
             "_id INTEGER," +
@@ -48,6 +54,8 @@ public class DataHelper {
             "score INTEGER DEFAULT 0," +
             "datetime DATETIME DEFAULT CURRENT_TIMESTAMP," + //TODO: change after converting to MySQL
             "FOREIGN KEY(_id) REFERENCES users(_id))";
+    private Context context;
+    private SQLiteDatabase db;
 
 
     /*
@@ -68,30 +76,50 @@ public class DataHelper {
         return sInstance;
     }
 
+    public static JSONObject getJSONfromURL(String url) {
+        InputStream is = null;
+        String result = "";
+        JSONObject jArray = null;
+
+        // Download JSON data from URL
+        try {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost(url);
+            HttpResponse response = httpclient.execute(httppost);
+            HttpEntity entity = response.getEntity();
+            is = entity.getContent();
+
+        } catch (Exception e) {
+            Log.e("log_tag", "Error in http connection " + e.toString());
+        }
+
+        // Convert response to string
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    is, "iso-8859-1"), 8);
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            is.close();
+            result = sb.toString();
+        } catch (Exception e) {
+            Log.e("log_tag", "Error converting result " + e.toString());
+        }
+
+        try {
+            jArray = new JSONObject(result);
+        } catch (Exception e) {
+            Log.e("log_tag", "Error parsing data " + e.toString());
+        }
+
+        return jArray;
+    }
+
     private void openDatabase() {
         OpenHelper openHelper = new OpenHelper(this.context);
         db = openHelper.getWritableDatabase();
-    }
-
-    private static class OpenHelper extends SQLiteOpenHelper {
-        OpenHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(createUsersTable);
-            db.execSQL(createFoodTable);
-            db.execSQL(createScoresTable);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + "users");
-            db.execSQL("DROP TABLE IF EXISTS " + "food");
-            db.execSQL("DROP TABLE IF EXISTS " + "scores");
-            onCreate(db);
-        }
     }
 
 
@@ -283,11 +311,11 @@ public class DataHelper {
         return this.db.query("scores, users", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
     }
 
-    public List<Score> getListOfScores() {
+    public List<String> getListOfScores() {
 
         //TODO: update to MySQL date / timestamp
 
-        List<Score> list = new ArrayList<Score>();
+        List<String> list = new ArrayList<String>();
         Cursor cursor = this.db.query("scores", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
@@ -301,7 +329,7 @@ public class DataHelper {
                     Score newScore = new Score(score, user);
 
 
-                    list.add(newScore);
+                    list.add(newScore.toString());
                 } while (cursor.moveToNext());
             }
             if (cursor != null && !cursor.isClosed())
@@ -344,5 +372,27 @@ public class DataHelper {
     }
 
     //TODO: Generic update score
+
+    private static class OpenHelper extends SQLiteOpenHelper {
+        OpenHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(createUsersTable);
+            db.execSQL(createFoodTable);
+            db.execSQL(createScoresTable);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + "users");
+            db.execSQL("DROP TABLE IF EXISTS " + "food");
+            db.execSQL("DROP TABLE IF EXISTS " + "scores");
+            onCreate(db);
+        }
+    }
+
 
 }

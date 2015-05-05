@@ -75,12 +75,11 @@ public class GameActivity extends Activity {
      */
     private class Game {
 
-        Context context;
-        int gameState = -1;
         final static int STARTING = 1;
         final static int RUNNING = 2;
         final static int ENDING = 3;
-
+        Context context;
+        int gameState = -1;
         private ArrayList<GameQuestion> questions;
         private int questionNumber;
 
@@ -133,7 +132,6 @@ public class GameActivity extends Activity {
                 image.setImageResource(R.drawable.check);
             } // Note: GameQuestion.answeredCorrectly is set to false by default
             else {
-                score += 3;
                 image.setImageResource(R.drawable.x);
             }
 
@@ -162,7 +160,7 @@ public class GameActivity extends Activity {
                 TextView questionView = (TextView) findViewById(R.id.question);
                 questionView.setText(currentQuestion.getQuestionType() + "" + currentQuestion.getQuestionVal());
             } catch (Exception e) {
-                finish();
+                gameOver();
             }
 
         }//end advance
@@ -175,9 +173,9 @@ public class GameActivity extends Activity {
             gameState = ENDING;
 
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            String email = settings.getString("userEmail", "Anonymous");
-            Score score = new Score(100, email);
-            dh.insertScore(score);
+            String email = settings.getString("userName", "Anonymous");
+            Score s = new Score(score, email);
+            dh.insertScore(s);
 
             finish();
         }//end gameOver

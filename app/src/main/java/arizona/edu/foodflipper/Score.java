@@ -10,10 +10,10 @@ public class Score {
     int datetime = -1;
     String user = "";
 
-    public Score(int score, String email) {
-        this.uid = uid;
+    public Score(int score, String user) {
+
         this.score = score;
-        this.datetime = datetime;
+
         this.user = user;
     }
 
@@ -30,15 +30,15 @@ public class Score {
         return score;
     }
 
-    public void setEmail(String user) {
-        this.user = user;
-    }
-
     public int getDatetime() {
         return datetime;
     }
 
     public String getUser() {
         return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }
