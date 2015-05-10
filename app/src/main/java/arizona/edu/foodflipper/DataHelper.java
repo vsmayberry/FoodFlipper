@@ -76,50 +76,30 @@ public class DataHelper {
         return sInstance;
     }
 
-    public static JSONObject getJSONfromURL(String url) {
-        InputStream is = null;
-        String result = "";
-        JSONObject jArray = null;
-
-        // Download JSON data from URL
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(url);
-            HttpResponse response = httpclient.execute(httppost);
-            HttpEntity entity = response.getEntity();
-            is = entity.getContent();
-
-        } catch (Exception e) {
-            Log.e("log_tag", "Error in http connection " + e.toString());
-        }
-
-        // Convert response to string
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    is, "iso-8859-1"), 8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            is.close();
-            result = sb.toString();
-        } catch (Exception e) {
-            Log.e("log_tag", "Error converting result " + e.toString());
-        }
-
-        try {
-            jArray = new JSONObject(result);
-        } catch (Exception e) {
-            Log.e("log_tag", "Error parsing data " + e.toString());
-        }
-
-        return jArray;
-    }
-
     private void openDatabase() {
         OpenHelper openHelper = new OpenHelper(this.context);
         db = openHelper.getWritableDatabase();
+    }
+
+    private static class OpenHelper extends SQLiteOpenHelper {
+        OpenHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(createUsersTable);
+            db.execSQL(createFoodTable);
+            db.execSQL(createScoresTable);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + "users");
+            db.execSQL("DROP TABLE IF EXISTS " + "food");
+            db.execSQL("DROP TABLE IF EXISTS " + "scores");
+            onCreate(db);
+        }
     }
 
 
@@ -311,11 +291,11 @@ public class DataHelper {
         return this.db.query("scores, users", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
     }
 
-    public List<String> getListOfScores() {
+    public List<Score> getListOfScores() {
 
         //TODO: update to MySQL date / timestamp
 
-        List<String> list = new ArrayList<String>();
+        List<Score> list = new ArrayList<Score>();
         Cursor cursor = this.db.query("scores", new String[]{"_id", "score", "datetime", "user"}, null, null, null, null, "score DESC");
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
@@ -329,7 +309,7 @@ public class DataHelper {
                     Score newScore = new Score(score, user);
 
 
-                    list.add(newScore.toString());
+                    list.add(newScore);
                 } while (cursor.moveToNext());
             }
             if (cursor != null && !cursor.isClosed())
@@ -371,32 +351,6 @@ public class DataHelper {
         db.insert("scores", null, cv);
     }
 
-    public void setUserHome(String string) {
-        //TODO change users location
-    }
-
     //TODO: Generic update score
-
-    private static class OpenHelper extends SQLiteOpenHelper {
-        OpenHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(createUsersTable);
-            db.execSQL(createFoodTable);
-            db.execSQL(createScoresTable);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + "users");
-            db.execSQL("DROP TABLE IF EXISTS " + "food");
-            db.execSQL("DROP TABLE IF EXISTS " + "scores");
-            onCreate(db);
-        }
-    }
-
 
 }

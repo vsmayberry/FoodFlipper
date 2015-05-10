@@ -49,7 +49,7 @@ public class GameActivity extends Activity {
         lessThanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                game.makeGuess(LESS_THAN);
+                   game.makeGuess(LESS_THAN);
             }
         });
 

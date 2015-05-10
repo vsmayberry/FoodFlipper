@@ -12,6 +12,7 @@ Author: Joshua Solomon
 
 
 
+
 /*
  * Login and user functions
  */
@@ -48,10 +49,10 @@ function attemptLogin($args, $db){
 						   FROM `users`
 						   WHERE `email` = :email");
     $params = array(
-        ':email' => $args[0],
+        ':email' => $args[0]
     );
     $query->execute($params);
-    $results = $query->fetch();
+    $results = $query->fetchAll();
 
 	// Check emai;
 	if(empty($results)){
@@ -111,10 +112,10 @@ function insertUser($args, $db){
 						   FROM `users`
 						   WHERE `email` = :email");
     $selectParams = array(
-        ':email' => $args[0],
+        ':email' => $args[0]
     );
     $selectQuery->execute($selectParams);
-    $selectResults = $selectQuery->fetch();
+    $selectResults = $selectQuery->fetchAll();
 
 	// Check if email is already in use
 	if(!empty($selectResults)){
@@ -126,7 +127,7 @@ function insertUser($args, $db){
 						   VALUES (:email, :password)");
     $params = array(
         ':email' 	=> $args[0],
-		':password' => password_hash($args[1], PASSWORD_DEFAULT),
+		':password' => password_hash($args[1], PASSWORD_DEFAULT)
     );
 	
 	// Check insert success
@@ -143,18 +144,14 @@ function insertUser($args, $db){
 
 
 
+/*
+ * Food functions
+ */
 
 
 
 
 /*
- * Food functions
- */
- 
- 
- 
- 
- /*
  * Insert Food
  *
  * 	Params:
@@ -191,7 +188,7 @@ function insertFood($args, $db){
         ':uid' => $args[0]
     );
     $selectQuery->execute($selectParams);
-    $selectResults = $selectQuery->fetch();
+    $selectResults = $selectQuery->fetchAll();
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){
@@ -208,7 +205,7 @@ function insertFood($args, $db){
 		':carbs' 	=> $args[3],
 		':fat' 		=> $args[4],
 		':protein' 	=> $args[5],
-		':image' 	=> $args[6], // TODO: BLOBS, HOW
+		':image' 	=> $args[6] // TODO: BLOBS, HOW
     );
 	
 	// Check insert success
@@ -251,7 +248,7 @@ function selectFoodByUser($args, $db){
         ':uid' => $args[0]
     );
     $selectQuery->execute($selectParams);
-    $selectResults = $selectQuery->fetch();
+    $selectResults = $selectQuery->fetchAll();
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
@@ -268,7 +265,6 @@ function selectFoodByUser($args, $db){
  * Select Food For Game
  *
  *	Returns a somewhat random selection from the food table.
- *	
  *
  * 	Params:
  *		$args[0] - the number of food items to return
@@ -332,24 +328,16 @@ function selectFoodForGame($args, $db){
         break;
 	}
 	
-
-	// Select query
-	$selectQuery = $db->prepare("SELECT *
-						   		 FROM `food`
-						   		 ORDER BY :order
-						   		 LIMIT :start, :end");
-    $selectParams = array(
-        ':order' => $order,
-		':start' => $start,
-		':end'	 => ($start + $size),
-    );
+	$sql = "SELECT `fid`, `uid`, `name`, `calories`, `carbs`, `fat`, `protein` 
+							FROM `food` 
+							ORDER BY $order 
+							LIMIT $start, $size";
 	
-	
-	
-	echo("<br/>order: $order, start: $start, end: " . ($start + $size) .  "<br/>");
-	
+	// Select query 
+	$selectQuery = $db->prepare($sql);
+    
     $selectQuery->execute($selectParams);
-    $selectResults = $selectQuery->fetch();
+    $selectResults = $selectQuery->fetchAll();
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
@@ -359,6 +347,176 @@ function selectFoodForGame($args, $db){
 	return json_encode($selectResults);
 }//end selectFoodForGame
 
+
+
+
+/*
+ * Score functions
+ */
+
+
+
+/*
+ * Insert Score
+ *
+ * 	Params:
+ *		$args[0] - int: uid of the player
+ *		$args[1] - int: score
+ *	Returns:
+ *		If 2 values are not set in $args:
+ *			"INVALID ARGS."
+ *		If the score is negative:
+ *			"INVAID SCORE."
+ *		If the insert was unsuccessful:
+ *			"FAILED TO ADD SCORE, PLEASE TRY AGAIN."
+ *		If the insert was successful:
+ *			"SUCCESSFULLY ADDED!"
+ */
+ 
+ function insertScore($args, $db){
+	
+	// Check args
+	if(count($args) != 2){
+		return "INVALID ARGS.";
+	}
+
+	// Check uid
+	if($args[0] < 0){
+		return "IVALID UID.";	
+	}
+
+	// Check score
+	if($args[1] < 0){
+		return "IVALID SCORE.";	
+	}
+	
+	// Insert Quuery
+	$insertQuery = $db->prepare("INSERT INTO `scores` (`uid`, `score`)
+						   VALUES (:uid, :score)");
+    $params = array(
+        ':uid' 		=> $args[0],
+		':score' 	=> $args[1]
+    );
+	
+	// Check insert success
+    if($insertQuery->execute($params)){
+		return "SUCCESSFULLY ADDED!";
+	}
+	
+	return "FAILED TO ADD SCORE, PLEASE TRY AGAIN.";
+}//end insertScore
+
+
+
+
+ /*
+ * Select Scores
+ *
+ * 	Params:
+ *		$args[0] - int: number of scores
+ *
+ *	Returns:
+ *		If 1 value are not set in $args:
+ *			"INVALID ARGS."
+ *		If args[0] is nonpositive:
+ *			"INVALID SIZE."
+ *		If the select was unsuccessful:
+ *			"FAILED TO LOAD SCORES, PLEASE TRY AGAIN"
+ *		If the select was successful:
+ *			returns json of score objects
+ */
+
+function selectScores($args, $db){
+	
+	// Check args
+	if(count($args) != 1){
+		return "INVALID ARGS.";
+	}
+	
+	//check size
+	if($args[0] < 1){
+		return "INVALID SIZE";
+	}
+	
+	$size = $args[0];
+	
+	// Select query
+	$selectQuery = $db->prepare("SELECT *
+						   FROM `scores`
+						   ORDER BY `score` DESC
+						   LIMIT $size");
+    $selectParams = array(':uid' => $args[0]);
+    $selectQuery->execute($selectParams);
+    $selectResults = $selectQuery->fetchAll();
+
+	// Check if UID exists in users table
+	if(empty($selectResults)){	
+		return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN.";
+	}
+	
+	return json_encode($selectResults);
+}//end selectFoodByUser
+
+
+//TODO: selectScoresByDistance
+
+
+ /*
+ * Select Scores By User
+ *
+ * 	Params:
+ *		$args[0] - int: uid
+ *		$args[1] - int: number of scores
+ *
+ *	Returns:
+ *		If 2 value are not set in $args:
+ *			"INVALID ARGS."
+ *		If args[0] is negative:
+ *			"INVALID UID."
+ *		If args[1] is nonpositive:
+ *			"INVALID SIZE."
+ *		If the select was unsuccessful:
+ *			"FAILED TO LOAD SCORES, PLEASE TRY AGAIN"
+ *		If the select was successful:
+ *			returns json of the user's score objects
+ */
+
+function selectScoresByUser($args, $db){
+	
+	// Check args
+	if(count($args) != 2){
+		return "INVALID ARGS.";
+	}
+	
+	//check uid
+	if($args[0] < 0){
+		return "INVALID UID";
+	}
+	
+	//check size
+	if($args[1] < 1){
+		return "INVALID SIZE";
+	}
+	
+	$size = $args[1];
+	
+	// Select query
+	$selectQuery = $db->prepare("SELECT *
+						   FROM `scores`
+						   WHERE `uid` = :uid
+						   ORDER BY `score` DESC
+						   LIMIT $size");
+    $selectParams = array(':uid' => $args[0]);
+    $selectQuery->execute($selectParams);
+    $selectResults = $selectQuery->fetchAll();
+
+	// Check if UID exists in users table
+	if(empty($selectResults)){	
+		return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN.";
+	}
+	
+	return json_encode($selectResults);
+}//end selectFoodByUser
 
 
 /*
@@ -375,6 +533,12 @@ $database = "jsxshq7_397proj";
 $username = "jsxshq7_397proj";
 $password = "jsxshq7_397proj";
 $db = new PDO("mysql:host=localhost;dbname=jsxshq7_397proj", $username, $password);
+
+if(empty($_GET) || empty($_GET['o']) || empty($_GET['a'])){
+	die("NO DATA.");	
+}
+
+//TODO: Auth here
 
 // run the specified function
 $operation = $_GET['o'];

@@ -58,7 +58,7 @@ public class GameOverActivity extends Activity {
         lessThanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // changeFood(PREV);
+                changeFood(PREV);
             }
         });
 
@@ -66,7 +66,7 @@ public class GameOverActivity extends Activity {
         greaterThanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // changeFood(NEXT);
+                changeFood(NEXT);
             }
         });
 
@@ -75,7 +75,7 @@ public class GameOverActivity extends Activity {
 
 
     private void updateUI(){
-/*
+
         //update name
         name.setText(game.getName());
 
@@ -99,7 +99,6 @@ public class GameOverActivity extends Activity {
         hintTexts[2] = game.getHintTypes()[2] + ": "
                 + ((game.getHintVals()[2] >= 0) ? game.getHintVals()[2] + "" : "N/A");
         hints[2].setText(hintTexts[2]);
-     */
     }
 
 
