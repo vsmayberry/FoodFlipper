@@ -20,7 +20,6 @@ Author: Joshua Solomon
 		- selectUser
 		- updateUser
 		- deleteUser
-		//TODO: default location
 		//TODO: User Cascade Delete
 			
 	Food Functions: 
@@ -28,16 +27,15 @@ Author: Joshua Solomon
 		- selectFoodForGame
 		- selectFoodByUser
 		- updateFood
+		- flagFood
 		- deleteFood
-		//TODO: Add flagging
 		//TODO: blobs
 		
 	Score Functions: 
 		- insertScore
 		- selectScores
+		- selectScoreByDistance
 		- selectScoresByUser
-		//TODO: selectScoresByDistance
-		//TODO: score location
 */
 
 
@@ -70,9 +68,7 @@ Author: Joshua Solomon
 function attemptLogin($args, $db){
 	
 	// Check args
-	if(count($args) != 2){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	// Select query
 	$query = $db->prepare("SELECT `uid`, `email`, `password`
@@ -85,14 +81,10 @@ function attemptLogin($args, $db){
     $results = $query->fetch();
 
 	// Check emai;
-	if(empty($results)){
-		return "THIS EMAIL IS NOT IN OUR SYSTEM.";	
-	}
+	if(empty($results)){ return "THIS EMAIL IS NOT IN OUR SYSTEM."; }
 
 	// Checks a password hashed using password_hash
-    if(!password_verify( $args[1], $results['password'])){
-		return "<br/>INCORRECT PASSWORD.";	
-	}
+    if(!password_verify( $args[1], $results['password'])){ return "<br/>INCORRECT PASSWORD."; }
 	
 	$return = array($results['uid'], $args[0], $args[1]);
 	return json_encode($return);
@@ -107,8 +99,9 @@ function attemptLogin($args, $db){
  * 	Params:
  *		$args[0] - email sent from android device
  *		$args[1] - plaintext password sent from android device
+ *		$args[2] - String: address;
  *	Returns:
- *		If 2 values are not set in $args:
+ *		If 3 values are not set in $args:
  *			"INVALID ARGS."
  *		If the email is already in the users table:
  *			"THIS EMAL IS ALREADY IN OUR SYSTEM."
@@ -125,19 +118,13 @@ function attemptLogin($args, $db){
 function insertUser($args, $db){
 	
 	// Check args
-	if(count($args) != 2){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 3){ return "INVALID ARGS."; }
 	
 	// Check email
-	if(filter_var($args[0], FILTER_VALIDATE_EMAIL) === false){
-		return "INVALID EMAIL.";
-	}
+	if(filter_var($args[0], FILTER_VALIDATE_EMAIL) === false){ return "INVALID EMAIL."; }
 	
 	// Check password
-	if(strlen($args[1]) <= 4){
-		return "INVALID PASSWORD.";
-	}
+	if(strlen($args[1]) <= 4){ return "INVALID PASSWORD."; }
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT `email`
@@ -150,16 +137,15 @@ function insertUser($args, $db){
     $selectResults = $selectQuery->fetchAll();
 
 	// Check if email is already in use
-	if(!empty($selectResults)){
-		return "THIS EMAIL IS ALREADY IN OUR SYSTEM.";	
-	}
+	if(!empty($selectResults)){ return "THIS EMAIL IS ALREADY IN OUR SYSTEM."; }
 	
 	// Insert Quuery
-	$insertQuery = $db->prepare("INSERT INTO `users` (`email`, `password`)
-						   VALUES (:email, :password)");
+	$insertQuery = $db->prepare("INSERT INTO `users` (`email`, `password`, `address`)
+						   VALUES (:email, :password, :address)");
     $params = array(
         ':email' 	=> $args[0],
-		':password' => password_hash($args[1], PASSWORD_DEFAULT)
+		':password' => password_hash($args[1], PASSWORD_DEFAULT),
+		':address'  => $args[2]
     );
 	
 	// Check insert success
@@ -183,7 +169,7 @@ function insertUser($args, $db){
  *		$args[0] - int: uid
  *
  *	Returns:
- *		If 1 value are not set in $args:
+ *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
  *			"INVALID USER."
@@ -196,14 +182,10 @@ function insertUser($args, $db){
 function selectUser($args, $db){
 	
 	// Check args
-	if(count($args) != 1){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 0){
-		return "INVALID UID";
-	}
+	if($args[0] < 0){ return "INVALID UID."; }
 	
 	$size = $args[0];
 	
@@ -217,8 +199,7 @@ function selectUser($args, $db){
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
-		return "FAILED TO LOAD USER, PLEASE TRY AGAIN.";
-	}
+		return "FAILED TO LOAD USER, PLEASE TRY AGAIN."; }
 	
 	return json_encode($selectResults);
 }//end selectUser
@@ -230,9 +211,10 @@ function selectUser($args, $db){
  * 	Params:
  *		$args[0] - int: uid
  *		$args[1] - String: email;
- *		$args[2] - String: Password;
+ *		$args[2] - String: password;
+ *		$args[3] - String: address;
  *	Returns:
- *		If 3 values are not set in $args:
+ *		If 4 values are not set in $args:
  *			"INVALID ARGS."
  *		If the email is already in the users table:
  *			"THIS EMAL IS ALREADY IN OUR SYSTEM."
@@ -249,19 +231,13 @@ function selectUser($args, $db){
 function updateUser($args, $db){
 	
 	// Check args
-	if(count($args) != 3){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 4){ return "INVALID ARGS."; }
 	
 	// Check email
-	if(filter_var($args[1], FILTER_VALIDATE_EMAIL) === false){
-		return "INVALID EMAIL.";
-	}
+	if(filter_var($args[1], FILTER_VALIDATE_EMAIL) === false){ return "INVALID EMAIL."; }
 	
 	// Check password
-	if(strlen($args[2]) <= 4){
-		return "INVALID PASSWORD.";
-	}
+	if(strlen($args[2]) <= 4){ return "INVALID PASSWORD."; }
 	
 	// Update query
 	$updateQuery = $db->prepare("UPDATE `users`
@@ -270,14 +246,12 @@ function updateUser($args, $db){
     $updateParams = array(
 		':uid' 		=> $args[0],
 		':email' 	=> $args[1],
-        ':password' => password_hash($args[2], PASSWORD_DEFAULT)
+        ':password' => password_hash($args[2], PASSWORD_DEFAULT),
+		':address'  => $args[3]
     );
     
-	
 	// Check update success
-    if($updateQuery->execute($updateParams)){
-		return "SUCCESSFULLY UPDATED!";
-	}
+    if($updateQuery->execute($updateParams)){ return "SUCCESSFULLY UPDATED!"; }
 	
 	return "FAILED TO UPDATE ACCOUNT, PLEASE TRY AGAIN.";
 }//end updateUser
@@ -310,14 +284,10 @@ function updateUser($args, $db){
 function deleteUser($args, $db){
 	
 	// Check args
-	if(count($args) != 2){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 0){
-		return "INVALID USER";
-	}
+	if($args[0] < 0){ return "INVALID USER."; }
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT `password`
@@ -336,7 +306,7 @@ function deleteUser($args, $db){
 			return "INCORRECT PASSWORD.";	
 		}
 	}else{
-		return "USER DOES NOT EXIST";
+		return "USER DOES NOT EXIST.";
 	}
 	
 	// Delete query - TODO: MySQL set up to cascade deletes to food andscores table
@@ -349,10 +319,9 @@ function deleteUser($args, $db){
 	var_dump($deleteResults);
 	// Check if UID exists in users table
 	if($deleteQuery->rowCount() < 1){	
-		return "<br />FAILED TO DELETE USER, PLEASE TRY AGAIN.";
-	}
+		return "<br />FAILED TO DELETE USER, PLEASE TRY AGAIN."; }
 	
-	return "SUCCESSFULLY DELETED!";;
+	return "SUCCESSFULLY DELETED!";
 }//end deleteUser
 
 
@@ -370,12 +339,13 @@ function deleteUser($args, $db){
  *
  * 	Params:
  *		$args[0] - int: uid of creator
- *		$args[1] - String: Name of food
- *		$args[2] - int: Calories
- *		$args[3] - int: Carbs
- *		$args[4] - int: Fat 
- *		$args[5] - int: Protein
- *		$args[6] - Blob: Image 
+ *		$args[1] - String: 	Name of food
+ *		$args[2] - int:  	Calories
+ *		$args[3] - int:  	Carbs
+ *		$args[4] - int:  	Fat 
+ *		$args[5] - int:  	Protein
+ *		$args[6] - Blob: 	Image
+ *		
  *	Returns:
  *		If 7 values are not set in $args:
  *			"INVALID ARGS."
@@ -390,9 +360,7 @@ function deleteUser($args, $db){
 function insertFood($args, $db){
 	
 	// Check args
-	if(count($args) != 7){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 7){ return "INVALID ARGS."; }
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT `uid`
@@ -405,9 +373,7 @@ function insertFood($args, $db){
     $selectResults = $selectQuery->fetchAll();
 
 	// Check if UID exists in users table
-	if(empty($selectResults)){
-		return "IVALID USER.";	
-	}
+	if(empty($selectResults)){ return "IVALID USER."; }
 	
 	// Insert Quuery
 	$insertQuery = $db->prepare("INSERT INTO `food` (`uid`, `name`, `calories`, `carbs`, `fat`, `protein`, `image`)
@@ -423,9 +389,7 @@ function insertFood($args, $db){
     );
 	
 	// Check insert success
-    if($insertQuery->execute($params)){
-		return "SUCCESSFULLY ADDED!";
-	}
+    if($insertQuery->execute($params)){ return "SUCCESSFULLY ADDED!"; }
 	
 	return "FAILED TO ADD FOOD, PLEASE TRY AGAIN.";
 }//end insertFood
@@ -439,7 +403,7 @@ function insertFood($args, $db){
  *		$args[0] - int: uid of creator
  *
  *	Returns:
- *		If 1 value are not set in $args:
+ *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If the select was unsuccessful:
  *			"FAILED TO LOAD FOOD, PLEASE TRY AGAIN"
@@ -450,9 +414,7 @@ function insertFood($args, $db){
 function selectFoodByUser($args, $db){
 	
 	// Check args
-	if(count($args) != 1){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT *
@@ -466,8 +428,7 @@ function selectFoodByUser($args, $db){
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
-		return "FAILED TO LOAD FOOD, PLEASE TRY AGAIN.";
-	}
+		return "FAILED TO LOAD FOOD, PLEASE TRY AGAIN."; }
 	
 	return json_encode($selectResults);
 }//end selectFoodByUser
@@ -484,7 +445,7 @@ function selectFoodByUser($args, $db){
  *		$args[0] - the number of food items to return
  *
  *	Returns:
- *		If 1 value are not set in $args:
+ *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If the select was unsuccessful:
  *			"FAILED TO LOAD FOOD, PLEASE TRY AGAIN"
@@ -495,9 +456,7 @@ function selectFoodByUser($args, $db){
 function selectFoodForGame($args, $db){
 	
 	// Check args
-	if(count($args) != 1){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	// Count query
 	$countQuery = $db->prepare("SELECT COUNT(*) FROM `food`");
@@ -544,6 +503,7 @@ function selectFoodForGame($args, $db){
 	
 	$sql = "SELECT `fid`, `uid`, `name`, `calories`, `carbs`, `fat`, `protein` 
 							FROM `food` 
+							WHERE `flags` < 3 
 							ORDER BY $order 
 							LIMIT $start, $size";
 	
@@ -555,8 +515,7 @@ function selectFoodForGame($args, $db){
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
-		return "FAILED TO LOAD FOOD, PLEASE TRY AGAIN.";
-	}
+		return "FAILED TO LOAD FOOD, PLEASE TRY AGAIN."; }
 	
 	return json_encode($selectResults);
 }//end selectFoodForGame
@@ -590,14 +549,10 @@ function selectFoodForGame($args, $db){
 function updateFood($args, $db){
 	
 	// Check args
-	if(count($args) != 5){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 5){ return "INVALID ARGS."; }
 	
 	// Check fid
-	if(strlen($args[0]) < 0){
-		return "INVALID FID.";
-	}
+	if(strlen($args[0]) < 0){ return "INVALID FID."; }
 	
 	// Update query
 	$updateQuery = $db->prepare("UPDATE `food`
@@ -613,12 +568,54 @@ function updateFood($args, $db){
     
 	
 	// Check update success
-    if($updateQuery->execute($updateParams)){
-		return "SUCCESSFULLY UPDATED!";
-	}
+    if($updateQuery->execute($updateParams)){ return "SUCCESSFULLY UPDATED!"; }
 	
 	return "FAILED TO UPDATE FOOD, PLEASE TRY AGAIN.";
 }//end updateFood
+
+
+
+
+/*
+ * Flag Food
+ *
+ * 	Params:
+ *		$args[0] - int: fid
+ *		//TODO: blob
+ *
+ *	Returns:
+ *		If 1 value is not set in $args:
+ *			"INVALID ARGS."
+ *		If the fid is invalid:
+ *			"INVAID FID."
+ *		If the update was unsuccessful:
+ *			"FAILED TO UPDATE FOOD, PLEASE TRY AGAIN."
+ *		If the insert was successful:
+ *			calls and returns attemptLogin($args[0], $db)
+ */
+
+
+function flagFood($args, $db){
+	
+	// Check args
+	if(count($args) != 1){ return "INVALID ARGS."; }
+	
+	// Check fid
+	if(strlen($args[0]) < 0){ return "INVALID FID."; }
+	
+	// Update query
+	$updateQuery = $db->prepare("UPDATE `food`
+						   SET `flags` = `flags` + 1
+						   WHERE `fid` = :fid");
+    $updateParams = array(
+		':fid'	 	=> $args[0]
+    );
+    
+	// Check update success
+    if($updateQuery->execute($updateParams)){ return "SUCCESSFULLY FLAGGED!"; }
+	
+	return "FAILED TO FLAG FOOD, PLEASE TRY AGAIN.";
+}//end flagFood
 
 
 
@@ -630,7 +627,7 @@ function updateFood($args, $db){
  *		$args[0] - int: fid
  *
  *	Returns:
- *		If 1 value are not set in $args:
+ *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
  *			"INVALID FOOD."
@@ -643,14 +640,10 @@ function updateFood($args, $db){
 function deleteFood($args, $db){
 	
 	// Check args
-	if(count($args) != 1){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 0){
-		return "INVALID FOOD";
-	}
+	if($args[0] < 0){ return "INVALID FOOD."; }
 	
 	// Delete query
 	$deleteQuery = $db->prepare("DELETE FROM `food`
@@ -658,8 +651,7 @@ function deleteFood($args, $db){
     $deleteParams = array(':fid' => $args[0]);
    
 	if($deleteQuery->execute($deleteParams)){	
-		return "SUCCESSFULLY DELETED!";
-	}
+		return "SUCCESSFULLY DELETED!"; }
 	
 	return "FAILED TO DELETE FOOD, PLEASE TRY AGAIN.";
 }//end deleteFood
@@ -676,10 +668,12 @@ function deleteFood($args, $db){
  * Insert Score
  *
  * 	Params:
- *		$args[0] - int: uid of the player
- *		$args[1] - int: score
+ *		$args[0] - int:		uid of the player
+ *		$args[1] - int: 	score
+ *		$args[2] - double:	latitude
+ *		$args[3] - double:	longitude
  *	Returns:
- *		If 2 values are not set in $args:
+ *		If 4 values are not set in $args:
  *			"INVALID ARGS."
  *		If the score is negative:
  *			"INVAID SCORE."
@@ -692,32 +686,26 @@ function deleteFood($args, $db){
  function insertScore($args, $db){
 	
 	// Check args
-	if(count($args) != 2){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 4){ return "INVALID ARGS."; }
 
 	// Check uid
-	if($args[0] < 0){
-		return "IVALID UID.";	
-	}
+	if($args[0] < 0){ return "IVALID UID."; }
 
 	// Check score
-	if($args[1] < 0){
-		return "IVALID SCORE.";	
-	}
+	if($args[1] < 0){ return "IVALID SCORE."; }
 	
 	// Insert Quuery
-	$insertQuery = $db->prepare("INSERT INTO `scores` (`uid`, `score`)
-						   VALUES (:uid, :score)");
+	$insertQuery = $db->prepare("INSERT INTO `scores` (`uid`, `score`, `latitude`, `longitude`)
+						   VALUES (:uid, :score, :latitude, :longitude)");
     $params = array(
-        ':uid' 		=> $args[0],
-		':score' 	=> $args[1]
+        ':uid' 		 => $args[0],
+		':score' 	 => $args[1],
+		':latitude'  => $args[2],
+		':longitude' => $args[4]
     );
 	
 	// Check insert success
-    if($insertQuery->execute($params)){
-		return "SUCCESSFULLY ADDED!";
-	}
+    if($insertQuery->execute($params)){ return "SUCCESSFULLY ADDED!"; }
 	
 	return "FAILED TO ADD SCORE, PLEASE TRY AGAIN.";
 }//end insertScore
@@ -732,7 +720,7 @@ function deleteFood($args, $db){
  *		$args[0] - int: number of scores
  *
  *	Returns:
- *		If 1 value are not set in $args:
+ *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is nonpositive:
  *			"INVALID SIZE."
@@ -745,14 +733,10 @@ function deleteFood($args, $db){
 function selectScores($args, $db){
 	
 	// Check args
-	if(count($args) != 1){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 1){
-		return "INVALID SIZE";
-	}
+	if($args[0] < 1){ return "INVALID SIZE."; }
 	
 	$size = $args[0];
 	
@@ -766,14 +750,79 @@ function selectScores($args, $db){
 
 	// Check if UID exists in users table
 	if(empty($selectResults)){	
-		return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN.";
-	}
+		return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN."; }
 	
 	return json_encode($selectResults);
 }//end selectScore
 
 
-//TODO: selectScoresByDistance
+ /*
+ * Select Scores By Distance
+ *
+ * 	Params:
+ *		$args[0] - int: 	number of scores
+ *		$args[1] - double:  latitude
+ *		$args[2] - double:  longitude
+ *		$args[3] - double:	radius
+ *
+ *	Returns:
+ *		If 4 values are not set in $args:
+ *			"INVALID ARGS."
+ *		If args[0] is nonpositive:
+ *			"INVALID SIZE."
+ *		If args[3] is nonpositive:
+ *			"INVALID RADIUS."
+ *		If the select was unsuccessful:
+ *			"FAILED TO LOAD SCORES, PLEASE TRY AGAIN"
+ *		If the select was successful:
+ *			returns json of score objects
+ */
+
+function selectScoresByDistance($args, $db){
+	
+	// Check args
+	if(count($args) != 4){ return "INVALID ARGS."; }
+	
+	// Check size
+	if($args[0] < 1){ return "INVALID SIZE."; }
+	
+	// Check radius
+	if($args[3] <= 0){ return "INVALID RADIUS."; }
+	
+	$size 		= $args[0];
+	$latitude 	= $args[1];
+	$longitude 	= $args[2];
+	$radius 	= $args[3];
+	
+	// Distance Column - calculates distance based on latitude and longitude
+	// 3959 = scalar that converts the distance to miles
+	$distCol = "3959 * acos(cos(radians($latitude)) * 
+						 cos(radians(`latitude`)) * 
+						 cos(radians(`longitude`) 
+						 - radians($longitude)) + 
+						 sin(radians($latitude)) * 
+						 sin(radians(`latitude`)))";
+						 
+	echo("<br/>SELECT *, ($distCol) as `distance` 
+						   FROM `scores` 
+						   HAVING `distance` < $radius 
+						   ORDER BY `score` DESC 
+						   LIMIT $size<br/>");
+	
+	// Select query
+	$selectQuery = $db->prepare("SELECT *, ($distCol) as `distance` 
+						   FROM `scores` 
+						   HAVING `distance` < $radius 
+						   ORDER BY `score` DESC 
+						   LIMIT $size");
+    $selectQuery->execute($selectParams);
+    $selectResults = $selectQuery->fetchAll();
+
+	// Check if UID exists in users table
+	if(empty($selectResults)){ return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN."; }
+	
+	return json_encode($selectResults);
+}//end selectScoreByDistance
 
 
  /*
@@ -799,19 +848,13 @@ function selectScores($args, $db){
 function selectScoresByUser($args, $db){
 	
 	// Check args
-	if(count($args) != 2){
-		return "INVALID ARGS.";
-	}
+	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	//check uid
-	if($args[0] < 0){
-		return "INVALID USER";
-	}
+	if($args[0] < 0){ return "INVALID USER."; }
 	
 	//check size
-	if($args[1] < 1){
-		return "INVALID SIZE";
-	}
+	if($args[1] < 1){ return "INVALID SIZE."; }
 	
 	$size = $args[1];
 	
@@ -826,9 +869,7 @@ function selectScoresByUser($args, $db){
     $selectResults = $selectQuery->fetchAll();
 
 	// Check if UID exists in users table
-	if(empty($selectResults)){	
-		return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN.";
-	}
+	if(empty($selectResults)){ return "FAILED TO LOAD SCORES, PLEASE TRY AGAIN."; }
 	
 	return json_encode($selectResults);
 }//end selectFoodByUser
