@@ -57,7 +57,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
         dh = new DataHelper(this);
-        users = dh.getUsers();
+
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -256,19 +256,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            //TODO: more efficient query for login checking
-            while (users.moveToNext()) {
-                String email = users.getString(1);
-                String password = users.getString(2);
-                if (email.equals(mEmail)) {
+
+            if (dh.loginUser(mEmail, mPassword)) {
                     System.out.println("Found user in db");
                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean("isLoggedIn", true);
                     editor.putString("userName", mEmail);
                     editor.commit();
-                    return password.equals(mPassword);
-                }
+                return true;
             }
 
             User user = new User(mEmail);

@@ -28,7 +28,7 @@ public class GameActivity extends Activity {
     public static final String PREFS_NAME = "MyPrefsFile";
     public static final boolean LESS_THAN = false;
     public static final boolean GREATER_THAN = true;
-    int timerDelay = 3000;
+    int timerDelay = 1500;
     DataHelper dh;
     private Game game;
 
@@ -157,8 +157,10 @@ public class GameActivity extends Activity {
                 //update image
                 ImageView view = (ImageView) findViewById(R.id.food_image);
                 view.setImageBitmap(currentQuestion.getImage());
+                view.getLayoutParams().height = 600;
+                view.getLayoutParams().width = 600;
                 TextView questionView = (TextView) findViewById(R.id.question);
-                questionView.setText(currentQuestion.getQuestionType() + "" + currentQuestion.getQuestionVal());
+                questionView.setText(currentQuestion.getQuestionType() + ":      " + currentQuestion.getQuestionVal());
             } catch (Exception e) {
                 gameOver();
             }

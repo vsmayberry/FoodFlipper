@@ -69,7 +69,7 @@ public class SettingsActivity extends ActionBarActivity implements GoogleApiClie
         DataHelper dh = new DataHelper(this);
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
-        dh.setUserHome(settings.getString("userName", "Anonymous"));
+        //dh.setUserHome(settings.getString("userName", "Anonymous"));
     }
 
     @Override

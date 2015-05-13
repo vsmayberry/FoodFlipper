@@ -8,37 +8,47 @@ public class User {
     int uid = -1;
     String password = "";
     String user = "";
+    String address = "";
 
-    public User(String user, String password) {
+    public User(String user, String password, String address) {
         this.user = user;
         this.password = hash(password);
+        this.address = address;
     }
 
     public User(String user) {
         this.user = user;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public int getUID() {
         return this.uid;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getUser() {
         return this.user;
     }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
+
     public String getPassword() {
         return this.password;
     }
 
-    //TODO implement hashing function for seure password storage
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    //TODO implement hashing function for secure password storage
     private String hash(String password) {
         return password + "HASHED";
     }
