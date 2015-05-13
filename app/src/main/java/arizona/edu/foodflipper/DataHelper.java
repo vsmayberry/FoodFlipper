@@ -33,6 +33,8 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DataHelper {
     /*
@@ -69,55 +71,9 @@ public class DataHelper {
     private static final String FFAPI = "http://www.jsxshq.com/foodflipper.php";
     private Context context;
 
-
-
-
-    /*
-     * Constructor And related methods
-     */
-
-
-
-
     public DataHelper(Context context) {
         this.context = context;
     }
-
-    public boolean attemptLogin(String email, String password) {
-
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost(FFAPI);
-
-            ArrayList<NameValuePair> array = new ArrayList<NameValuePair>();
-            array.add(new BasicNameValuePair("o", "attemptLogin"));
-            array.add(new BasicNameValuePair("a[0]", email));
-            array.add(new BasicNameValuePair("a[1]", password));
-            post.setEntity(new UrlEncodedFormEntity(array));
-
-            HttpResponse response = httpClient.execute(post);
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-            StringBuilder builder = new StringBuilder();
-            for (String line = null; (line = reader.readLine()) != null; ) {
-                builder.append(line);
-            }
-            System.out.println(builder);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        return true;
-    }
-
-
-
-    /*
-     * Query methods
-     */
 
 
 
@@ -159,7 +115,34 @@ public class DataHelper {
     }
 
 
+    public User attemptLogin(String email, String password) {
 
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(FFAPI);
+
+            ArrayList<NameValuePair> array = new ArrayList<NameValuePair>();
+            array.add(new BasicNameValuePair("o", "attemptLogin"));
+            array.add(new BasicNameValuePair("a[0]", email));
+            array.add(new BasicNameValuePair("a[1]", password));
+            post.setEntity(new UrlEncodedFormEntity(array));
+
+            HttpResponse response = httpClient.execute(post);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+            StringBuilder builder = new StringBuilder();
+            for (String line = null; (line = reader.readLine()) != null; ) {
+                builder.append(line);
+            }
+
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            System.out.println(builder);
+            return new User(jsonObject.getInt("uid"), email, password, jsonObject.getString("address"));
+
+        } catch (Exception e) {
+            return new User(-1, "fail@example.com", "", "");
+        }
+    }
 
     public User selectUser(User user) {
 
@@ -179,12 +162,16 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            System.out.println(builder);
+            return new User(jsonObject.getInt("uid"), jsonObject.getString("email"),
+                            jsonObject.getString("password"), jsonObject.getString("address"));
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new User("IOException");
+        } catch (JSONException e) {
+            return new User("JSONException");
         }
-
-        return new User("NO USER FOUND");
     }
 
 
@@ -318,12 +305,30 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONObject jsonTemp;
+            System.out.println(builder);
+            Food tempFood;
+            ArrayList<Food> userList = new ArrayList<Food>();
+
+            for(int i = 0; i < jsonObject.length(); i++){
+
+                jsonTemp = jsonObject.getJSONObject("" + i);
+                tempFood = new Food(jsonTemp.getInt("fid"), jsonTemp.getInt("uid"),
+                                     jsonTemp.getString("name"), jsonTemp.getInt("calories"),
+                                     jsonTemp.getInt("carbs"), jsonTemp.getInt("fat"),
+                                     jsonTemp.getInt("protein"));
+
+                userList.add(tempFood);
+            }
+
+            return userList;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<Food>();
+        } catch (JSONException e) {
+            return new ArrayList<Food>();
         }
-
-        return new ArrayList<Food>();
     }
 
 
@@ -347,12 +352,30 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONObject jsonTemp;
+            System.out.println(builder);
+            Food tempFood;
+            ArrayList<Food> gameList = new ArrayList<Food>();
+
+            for(int i = 0; i < jsonObject.length(); i++){
+
+                jsonTemp = jsonObject.getJSONObject("" + i);
+                tempFood = new Food(jsonTemp.getInt("fid"), jsonTemp.getInt("uid"),
+                        jsonTemp.getString("name"), jsonTemp.getInt("calories"),
+                        jsonTemp.getInt("carbs"), jsonTemp.getInt("fat"),
+                        jsonTemp.getInt("protein"));
+
+                gameList.add(tempFood);
+            }
+
+            return gameList;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<Food>();
+        } catch (JSONException e) {
+            return new ArrayList<Food>();
         }
-
-        return new ArrayList<Food>();
     }
 
 
@@ -504,12 +527,28 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONObject jsonTemp;
+            System.out.println(builder);
+            Score tempScore;
+            ArrayList<Score> scoreList = new ArrayList<Score>();
+
+            for(int i = 0; i < jsonObject.length(); i++){
+
+                jsonTemp = jsonObject.getJSONObject("" + i);
+                tempScore = new Score(jsonTemp.getInt("uid"), jsonTemp.getInt("score"), jsonTemp.getString("timestamp"),
+                                      jsonTemp.getDouble("latitude"), jsonTemp.getDouble("longitude"));
+
+                scoreList.add(tempScore);
+            }
+
+            return scoreList;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<Score>();
+        } catch (JSONException e) {
+            return new ArrayList<Score>();
         }
-
-        return new ArrayList<Score>();
     }
 
 
@@ -536,12 +575,29 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONObject jsonTemp;
+            System.out.println(builder);
+            Score tempScore;
+            ArrayList<Score> scoreList = new ArrayList<Score>();
+
+            for(int i = 0; i < jsonObject.length(); i++){
+
+                jsonTemp = jsonObject.getJSONObject("" + i);
+                tempScore = new Score(jsonTemp.getInt("uid"), jsonTemp.getInt("score"), jsonTemp.getString("timestamp"),
+                        jsonTemp.getDouble("latitude"), jsonTemp.getDouble("longitude"));
+
+                scoreList.add(tempScore);
+            }
+
+            return scoreList;
+
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<Score>();
+        } catch (JSONException e) {
+            return new ArrayList<Score>();
         }
-
-        return new ArrayList<Score>();
     }
 
 
@@ -565,12 +621,28 @@ public class DataHelper {
             }
             System.out.println(builder);
 
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONObject jsonTemp;
+            System.out.println(builder);
+            Score tempScore;
+            ArrayList<Score> scoreList = new ArrayList<Score>();
+
+            for(int i = 0; i < jsonObject.length(); i++){
+
+                jsonTemp = jsonObject.getJSONObject("" + i);
+                tempScore = new Score(user, jsonTemp.getInt("score"),
+                                      jsonTemp.getString("timestamp"));
+
+                scoreList.add(tempScore);
+            }
+
+            return scoreList;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<Score>();
+        } catch (JSONException e) {
+            return new ArrayList<Score>();
         }
-
-        return new ArrayList<Score>();
     }
 
 }

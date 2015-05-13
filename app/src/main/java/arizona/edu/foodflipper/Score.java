@@ -16,6 +16,7 @@ import java.util.List;
 public class Score {
 
     private User user;
+    private int uid;
     private int score = -1;
     private String timestamp = "";
     private double latitude = 33.24;
@@ -29,7 +30,7 @@ public class Score {
         setLocation();
     }
 
-    //used to display scores
+    //used to display user's scores
     public Score(User user, int score, String timestamp) {
 
         this.user = user;
@@ -39,10 +40,10 @@ public class Score {
         this.longitude = longitude;
     }
 
-    // used to display scores
-    public Score(User user, int score, String timestamp, double latitude, double longitude) {
+    // used to display high scores
+    public Score(int uid, int score, String timestamp, double latitude, double longitude) {
 
-        this.user = user;
+        this.uid = uid;
         this.score = score;
         this.timestamp = timestamp;
         this.latitude = latitude;

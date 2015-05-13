@@ -256,8 +256,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected Boolean doInBackground(Void... params) {
 
+            User user = dh.attemptLogin(mEmail, mPassword);
 
-            if (dh.attemptLogin(mEmail, mPassword)) {
+            if (user.getUID() > 0){
                     System.out.println("Found email in db");
                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                     SharedPreferences.Editor editor = settings.edit();
@@ -267,9 +268,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 return true;
             }
 
-            User user = new User(mEmail);
-            user.setEmail(mEmail);
-            user.setPassword(mPassword);
+            //Add new user
             dh.insertUser(user);
             return true;
         }

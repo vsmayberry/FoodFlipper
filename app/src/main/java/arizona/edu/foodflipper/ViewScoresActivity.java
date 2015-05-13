@@ -16,7 +16,7 @@ public class ViewScoresActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dh = new DataHelper(this);
-        List<Score> scores = dh.getListOfScores();
+        List<Score> scores = dh.selectScores(10);
         setListAdapter(new ArrayAdapter<Score>(this, android.R.layout.simple_list_item_1, scores));
 
     }

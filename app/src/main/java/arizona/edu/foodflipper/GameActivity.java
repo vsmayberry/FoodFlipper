@@ -41,7 +41,7 @@ public class GameActivity extends Activity {
         dh = new DataHelper(this);
 
         //initialize game
-        ArrayList<Food> food = (ArrayList) dh.getListOfFood();
+        ArrayList<Food> food = (ArrayList) dh.selectFoodForGame(5);
         game = new Game(food, this);
 
 
@@ -176,7 +176,9 @@ public class GameActivity extends Activity {
 
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             String email = settings.getString("userName", "Anonymous");
-            Score s = new Score(score, email);
+            //TODO: get logged in user object
+            User user = new User(0, "TEMPUSER@example.com", "testing", "1040 E 4th St Tucson");
+            Score s = new Score(user, score);
             dh.insertScore(s);
 
             finish();
