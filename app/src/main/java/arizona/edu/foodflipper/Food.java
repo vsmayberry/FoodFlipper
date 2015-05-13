@@ -63,4 +63,5 @@ public class Food {
     public void setProtein(int protein) { this.protein = protein; }
 
     public void setImage(Bitmap image) { this.image = image; }
+
 }//end Food

@@ -29,7 +29,6 @@ Author: Joshua Solomon
 		- updateFood
 		- flagFood
 		- deleteFood
-		//TODO: blobs
 		
 	Score Functions: 
 		- insertScore
@@ -375,6 +374,28 @@ function insertFood($args, $db){
 	// Check if UID exists in users table
 	if(empty($selectResults)){ return "IVALID USER."; }
 	
+	
+		
+	// Check if photo is uploaded
+	if (!isset($_FILES['photo']) || empty($_FILES['photo'])){ return "NO PHOTO SENT."; }
+	
+	$photo = $_FILES['photo'];
+	$ext = "";
+	// Check filename, must be .jpg, .jpeg, or .png
+	if (preg_match('/^[a-zA-Z0-9\-_]+\.jpe?g$/i', $photo['name'])){
+		$ext = ".jpg";
+	}else if(preg_match('/^[a-zA-Z0-9\-_]+\.png$/i', $photo['name'])){
+		$ext = ".png";
+	}else{
+		return "INVALID FILE NAME.";	
+	}
+	
+	
+	// Move file to uploads directory, named uploads/UID-SAFEFOODNAME-RANDM{.jpg,.png}
+	$safeFoodName = preg_replace("/[^A-Za-z0-9]/", '', $args[1]);
+	$newFileName = $args[0] . "-$safeFoodName-" . substr(sha1(rand()), 0, 5) . $ext;
+	move_uploaded_file($photo['tmp_name'], "uploads/$newFileName");
+	
 	// Insert Quuery
 	$insertQuery = $db->prepare("INSERT INTO `food` (`uid`, `name`, `calories`, `carbs`, `fat`, `protein`, `image`)
 						   VALUES (:uid, :name, :calories, :carbs, :fat, :protein, :image)");
@@ -385,13 +406,13 @@ function insertFood($args, $db){
 		':carbs' 	=> $args[3],
 		':fat' 		=> $args[4],
 		':protein' 	=> $args[5],
-		':image' 	=> $args[6] // TODO: BLOBS, HOW
+		':image' 	=> $newFileName
     );
-	
+
 	// Check insert success
     if($insertQuery->execute($params)){ return "SUCCESSFULLY ADDED!"; }
-	
-	return "FAILED TO ADD FOOD, PLEASE TRY AGAIN.";
+    
+	return "FAILED TO ADD FOOD, PLEASE TRY AGAIN."; 
 }//end insertFood
 
 
@@ -796,24 +817,19 @@ function selectScoresByDistance($args, $db){
 	
 	// Distance Column - calculates distance based on latitude and longitude
 	// 3959 = scalar that converts the distance to miles
-	$distCol = "3959 * acos(cos(radians($latitude)) * 
-						 cos(radians(`latitude`)) * 
-						 cos(radians(`longitude`) 
-						 - radians($longitude)) + 
-						 sin(radians($latitude)) * 
-						 sin(radians(`latitude`)))";
-						 
-	echo("<br/>SELECT *, ($distCol) as `distance` 
-						   FROM `scores` 
-						   HAVING `distance` < $radius 
-						   ORDER BY `score` DESC 
-						   LIMIT $size<br/>");
+	$distCol = "3959 * acos( "
+			 . "cos(radians($latitude)) * "
+			 . "cos(radians(`latitude`)) * "
+			 . "cos(radians(`longitude`) "
+			 . "- radians($longitude)) + "
+			 . "sin(radians($latitude)) * "
+			 . "sin(radians(`latitude`)))";
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT *, ($distCol) as `distance` 
 						   FROM `scores` 
 						   HAVING `distance` < $radius 
-						   ORDER BY `score` DESC 
+						   ORDER BY `score` DESC, `distance` ASC 
 						   LIMIT $size");
     $selectQuery->execute($selectParams);
     $selectResults = $selectQuery->fetchAll();

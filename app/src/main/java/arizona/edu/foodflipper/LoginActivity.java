@@ -110,7 +110,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         View focusView = null;
 
 
-        // Check for a valid password, if the user entered one.
+        // Check for a valid password, if the email entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
@@ -134,7 +134,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+            // perform the email login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
@@ -189,7 +189,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
+                // Retrieve data rows for the device email's 'profile' contact.
                 Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
                         ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
 
@@ -199,7 +199,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 .CONTENT_ITEM_TYPE},
 
                 // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
+                // a primary email address if the email hasn't specified one.
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
@@ -241,7 +241,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * the email.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -257,8 +257,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         protected Boolean doInBackground(Void... params) {
 
 
-            if (dh.loginUser(mEmail, mPassword)) {
-                    System.out.println("Found user in db");
+            if (dh.attemptLogin(mEmail, mPassword)) {
+                    System.out.println("Found email in db");
                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean("isLoggedIn", true);
@@ -268,7 +268,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
 
             User user = new User(mEmail);
-            user.setUser(mEmail);
+            user.setEmail(mEmail);
             user.setPassword(mPassword);
             dh.insertUser(user);
             return true;

@@ -6,18 +6,25 @@ package arizona.edu.foodflipper;
 public class User {
 
     int uid = -1;
+    String email = "";
     String password = "";
-    String user = "";
     String address = "";
 
-    public User(String user, String password, String address) {
-        this.user = user;
+    public User(String email, String password, String address) {
+        this.email = email;
         this.password = hash(password);
         this.address = address;
     }
 
-    public User(String user) {
-        this.user = user;
+    public User(int uid, String email, String password, String address) {
+        this.uid = uid;
+        this.email = email;
+        this.password = hash(password);
+        this.address = address;
+    }
+
+    public User(String email) {
+        this.email = email;
     }
 
     public String getAddress() {
@@ -32,12 +39,12 @@ public class User {
         return this.uid;
     }
 
-    public String getUser() {
-        return this.user;
+    public String getEmail() {
+        return this.email;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -53,7 +60,7 @@ public class User {
         return password + "HASHED";
     }
 
-    //compares plaintext password to hashed password stored by user object / db;
+    //compares plaintext password to hashed password stored by email object / db;
     public boolean checkPassword(String password) {
         return this.password.equals(hash(password));
     }

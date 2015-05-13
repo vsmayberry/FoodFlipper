@@ -67,7 +67,8 @@ public class FoodEntryActivity extends ActionBarActivity {
                 et = (EditText) findViewById(R.id.protBox);
                 int protein = Integer.parseInt(et.getText().toString());
 
-                Food food = new Food(dh.getID(userEmail), name, calories, carbs, fat, protein);
+                //TODO: Update login to set a global User object that we can reference to get the UID
+                Food food = new Food(1, name, calories, carbs, fat, protein);
                 if (bitmap != null)
                     dh.insertFood(food, bitmap);
                 finish();
