@@ -10,9 +10,7 @@ Author: Joshua Solomon
 		a: the arguments to pass to each function stored as an array.
 		
 	NOTES: 
-		https://dev.mysql.com/doc/refman/5.5/en/datetime.html
-		http://www.mysqltutorial.org/mysql-on-delete-cascade/
-		http://stackoverflow.com/questions/514943/php-mysql-order-by-two-columns
+		Currently hosted at http://www.jsxshq.com/foodflipper.php
 		
 	User Functions: 
 		- attemptLogin
@@ -83,7 +81,7 @@ function attemptLogin($args, $db){
 	if(empty($results)){ return "THIS EMAIL IS NOT IN OUR SYSTEM."; }
 
 	// Checks a password hashed using password_hash
-    if(!password_verify( $args[1], $results['password'])){ return "<br/>INCORRECT PASSWORD."; }
+    if(!password_verify( $args[1], $results['password'])){ return "INCORRECT PASSWORD."; }
 	
 	$return = array($results['uid'], $args[0], $args[1]);
 	return json_encode($return);
@@ -318,7 +316,7 @@ function deleteUser($args, $db){
 	var_dump($deleteResults);
 	// Check if UID exists in users table
 	if($deleteQuery->rowCount() < 1){	
-		return "<br />FAILED TO DELETE USER, PLEASE TRY AGAIN."; }
+		return "FAILED TO DELETE USER, PLEASE TRY AGAIN."; }
 	
 	return "SUCCESSFULLY DELETED!";
 }//end deleteUser
@@ -343,7 +341,7 @@ function deleteUser($args, $db){
  *		$args[3] - int:  	Carbs
  *		$args[4] - int:  	Fat 
  *		$args[5] - int:  	Protein
- *		$args[6] - Blob: 	Image
+ *		$_FILES['photo'] -  photo
  *		
  *	Returns:
  *		If 7 values are not set in $args:
@@ -549,14 +547,14 @@ function selectFoodForGame($args, $db){
  *
  * 	Params:
  *		$args[0] - int: fid
- *		$args[1] - int: calories;
- *		$args[2] - int: carbs;
- *		$args[3] - int: fat;
- *		$args[4] - int: protein;
- *		//TODO: blob
+  *		$args[1] - String: name;
+ *		$args[2] - int: calories;
+ *		$args[3] - int: carbs;
+ *		$args[4] - int: fat;
+ *		$args[5] - int: protein;
  *
  *	Returns:
- *		If 5 values are not set in $args:
+ *		If 6 values are not set in $args:
  *			"INVALID ARGS."
  *		If the fid is invalid:
  *			"INVAID FID."
@@ -570,21 +568,22 @@ function selectFoodForGame($args, $db){
 function updateFood($args, $db){
 	
 	// Check args
-	if(count($args) != 5){ return "INVALID ARGS."; }
+	if(count($args) != 6){ return "INVALID ARGS."; }
 	
 	// Check fid
 	if(strlen($args[0]) < 0){ return "INVALID FID."; }
 	
 	// Update query
 	$updateQuery = $db->prepare("UPDATE `food`
-						   SET `calories` = :calories, `carbs` = :carbs, `fat` = :fat, `protein` = :protein
+						   SET `name` = :name. `calories` = :calories, `carbs` = :carbs, `fat` = :fat, `protein` = :protein
 						   WHERE `fid` = :fid");
     $updateParams = array(
 		':fid'	 	=> $args[0],
-		':calories' => $args[1],
-		':carbs' 	=> $args[2],
-        ':fat' 		=> $args[3],
-		':protein' 	=> $args[4],
+		':name'		=> $args[1],
+		':calories' => $args[2],
+		':carbs' 	=> $args[3],
+        ':fat' 		=> $args[4],
+		':protein' 	=> $args[5],
     );
     
 	
@@ -906,15 +905,15 @@ $username = "jsxshq7_397proj";
 $password = "jsxshq7_397proj";
 $db = new PDO("mysql:host=localhost;dbname=jsxshq7_397proj", $username, $password);
 
-if(empty($_GET) || empty($_GET['o']) || empty($_GET['a'])){
+if(empty($_POST) || empty($_POST['o']) || empty($_POST['a'])){
 	die("NO DATA.");	
 }
 
 //TODO: Auth here
 
 // run the specified function
-$operation = $_GET['o'];
-$args = $_GET['a'];
+$operation = $_POST['o'];
+$args = $_POST['a'];
 echo($operation($args, $db));
 
 // close DB connection
