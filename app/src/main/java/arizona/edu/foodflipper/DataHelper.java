@@ -244,6 +244,8 @@ public class DataHelper {
 
     public boolean insertFood(Food food, Bitmap bitmap) {
 
+        System.out.println("INSERT FOOD");
+
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(FFAPI);
@@ -258,28 +260,41 @@ public class DataHelper {
             entity.addPart("a[4]", new StringBody("" + food.getFat()));
             entity.addPart("a[5]", new StringBody("" + food.getProtein()));
 
-            //convert bitmap to file
-            File bitmapFile = new File(context.getCacheDir(), food.getUID()+ "-" + food.getName() +".png");
-            OutputStream os = new FileOutputStream(bitmapFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
-            os.flush();
-            os.close();
+            if(bitmap != null) {
 
-            // add photo as file in http request
-            entity.addPart("photo", new FileBody(bitmapFile));
+                System.out.println("BITMAP ISN'T NULL");
+
+                //convert bitmap to file
+                File bitmapFile = new File(context.getCacheDir(), food.getUID() + "-" + food.getName() + ".png");
+                OutputStream os = new FileOutputStream(bitmapFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
+                os.flush();
+                os.close();
+
+                // add photo as file in http request
+                entity.addPart("photo", new FileBody(bitmapFile));
+            }else{
+                System.out.println("NULL BITMAP");
+            }
+
+            System.out.println("POST ENTITY");
             post.setEntity(entity);
+
+            System.out.println("RESPONSE");
             HttpResponse response = httpClient.execute(post);
 
+            System.out.println("BUFFER");
             BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
             StringBuilder builder = new StringBuilder();
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
 
+            System.out.println(builder);
             return true;
 
         } catch (IOException e) {
+            System.out.println("Insert Food IOExcepton");
             return false;
         }
     }

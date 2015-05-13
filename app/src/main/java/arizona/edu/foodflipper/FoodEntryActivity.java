@@ -69,8 +69,13 @@ public class FoodEntryActivity extends ActionBarActivity {
 
                 //TODO: Update login to set a global User object that we can reference to get the UID
                 Food food = new Food(1, name, calories, carbs, fat, protein);
-                if (bitmap != null)
-                    dh.insertFood(food, bitmap);
+
+                System.out.println("CALL: INSERT FOOD");
+
+                dh.insertFood(food, bitmap);
+
+                //picasso
+
                 finish();
             }
         });
