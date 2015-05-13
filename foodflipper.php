@@ -372,27 +372,29 @@ function insertFood($args, $db){
 	// Check if UID exists in users table
 	if(empty($selectResults)){ return "IVALID USER."; }
 	
-	
+	$newFileName;
 		
 	// Check if photo is uploaded
-	if (!isset($_FILES['photo']) || empty($_FILES['photo'])){ return "NO PHOTO SENT."; }
-	
-	$photo = $_FILES['photo'];
-	$ext = "";
-	// Check filename, must be .jpg, .jpeg, or .png
-	if (preg_match('/^[a-zA-Z0-9\-_]+\.jpe?g$/i', $photo['name'])){
-		$ext = ".jpg";
-	}else if(preg_match('/^[a-zA-Z0-9\-_]+\.png$/i', $photo['name'])){
-		$ext = ".png";
+	if (!isset($_FILES['photo']) || empty($_FILES['photo'])){ 
+		$newFileName = "";
 	}else{
-		return "INVALID FILE NAME.";	
+		
+		$photo = $_FILES['photo'];
+		$ext = "";
+		// Check filename, must be .jpg, .jpeg, or .png
+		if (preg_match('/^[a-zA-Z0-9\-_]+\.jpe?g$/i', $photo['name'])){
+			$ext = ".jpg";
+		}else if(preg_match('/^[a-zA-Z0-9\-_]+\.png$/i', $photo['name'])){
+			$ext = ".png";
+		}else{
+			return "INVALID FILE NAME.";	
+		}
+	
+		// Move file to uploads directory, named uploads/UID-SAFEFOODNAME-RANDM{.jpg,.png}
+		$safeFoodName = preg_replace("/[^A-Za-z0-9]/", '', $args[1]);
+		$newFileName = $args[0] . "-$safeFoodName-" . substr(sha1(rand()), 0, 5) . $ext;
+		move_uploaded_file($photo['tmp_name'], "uploads/$newFileName");
 	}
-	
-	
-	// Move file to uploads directory, named uploads/UID-SAFEFOODNAME-RANDM{.jpg,.png}
-	$safeFoodName = preg_replace("/[^A-Za-z0-9]/", '', $args[1]);
-	$newFileName = $args[0] . "-$safeFoodName-" . substr(sha1(rand()), 0, 5) . $ext;
-	move_uploaded_file($photo['tmp_name'], "uploads/$newFileName");
 	
 	// Insert Quuery
 	$insertQuery = $db->prepare("INSERT INTO `food` (`uid`, `name`, `calories`, `carbs`, `fat`, `protein`, `image`)
