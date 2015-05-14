@@ -94,9 +94,8 @@ function attemptLogin($args, $db){
  * Insert User
  *
  * 	Params:
- *		$args[0] - email sent from android device
- *		$args[1] - plaintext password sent from android device
- *		$args[2] - String: address;
+ *		$args[0] - String: email sent from android device
+ *		$args[1] - String: plaintext password sent from android device
  *	Returns:
  *		If 3 values are not set in $args:
  *			"INVALID ARGS."
@@ -107,7 +106,7 @@ function attemptLogin($args, $db){
  *		If the password is invalid:
  *			"INVAID PASSWORD."
  *		If the insert was unsuccessful:
- *			"FAILED TO ADD ACCOUNT, PLEASE TRY AGAIN."
+ *			"FAILED TO ADD USER, PLEASE TRY AGAIN."
  *		If the insert was successful:
  *			calls and returns attemptLogin($args, $db)
  */
@@ -115,7 +114,7 @@ function attemptLogin($args, $db){
 function insertUser($args, $db){
 	
 	// Check args
-	if(count($args) != 3){ return "INVALID ARGS."; }
+	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	// Check email
 	if(filter_var($args[0], FILTER_VALIDATE_EMAIL) === false){ return "INVALID EMAIL."; }
@@ -137,12 +136,11 @@ function insertUser($args, $db){
 	if(!empty($selectResults)){ return "THIS EMAIL IS ALREADY IN OUR SYSTEM."; }
 	
 	// Insert Quuery
-	$insertQuery = $db->prepare("INSERT INTO `users` (`email`, `password`, `address`)
-						   VALUES (:email, :password, :address)");
+	$insertQuery = $db->prepare("INSERT INTO `users` (`email`, `password`)
+						   VALUES (:email, :password)");
     $params = array(
         ':email' 	=> $args[0],
-		':password' => password_hash($args[1], PASSWORD_DEFAULT),
-		':address'  => $args[2]
+		':password' => password_hash($args[1], PASSWORD_DEFAULT)
     );
 	
 	// Check insert success
@@ -153,7 +151,7 @@ function insertUser($args, $db){
 		return $return; //no json encoding, it's done in attemptLogin
 	}
 	
-	return "FAILED TO ADD ACCOUNT, PLEASE TRY AGAIN.";
+	return "FAILED TO ADD USER, PLEASE TRY AGAIN.";
 }//end insertUser
 
 
@@ -169,7 +167,7 @@ function insertUser($args, $db){
  *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
- *			"INVALID USER."
+ *			"INVALID UID."
  *		If the select was unsuccessful:
  *			"FAILED TO LOAD USER, PLEASE TRY AGAIN"
  *		If the select was successful:
@@ -220,7 +218,7 @@ function selectUser($args, $db){
  *		If the password is invalid:
  *			"INVAID PASSWORD."
  *		If the update was unsuccessful:
- *			"FAILED TO UPDATE ACCOUNT, PLEASE TRY AGAIN."
+ *			"FAILED TO UPDATE USER, PLEASE TRY AGAIN."
  *		If the insert was successful:
  *			calls and returns attemptLogin($args[0], $db)
  */
@@ -250,7 +248,7 @@ function updateUser($args, $db){
 	// Check update success
     if($updateQuery->execute($updateParams)){ return "SUCCESSFULLY UPDATED!"; }
 	
-	return "FAILED TO UPDATE ACCOUNT, PLEASE TRY AGAIN.";
+	return "FAILED TO UPDATE USER, PLEASE TRY AGAIN.";
 }//end updateUser
 
 
@@ -267,7 +265,7 @@ function updateUser($args, $db){
  *		If 2 value are not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
- *			"INVALID USER."
+ *			"INVALID UID."
  *		If the uid isn't in the users table:
  *			"USER DOES NOT EXIST."
  *		If the password is incorrect:
@@ -284,7 +282,7 @@ function deleteUser($args, $db){
 	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 0){ return "INVALID USER."; }
+	if($args[0] < 0){ return "INVALID UID."; }
 	
 	// Select query
 	$selectQuery = $db->prepare("SELECT `password`
@@ -347,7 +345,7 @@ function deleteUser($args, $db){
  *		If 7 values are not set in $args:
  *			"INVALID ARGS."
  *		If the uid isn't in the users table:
- *			"INVALID USER."
+ *			"INVALID UID."
  *		If the insert was unsuccessful:
  *			"FAILED TO ADD FOOD, PLEASE TRY AGAIN"
  *		If the insert was successful:
@@ -611,7 +609,7 @@ function updateFood($args, $db){
  *		If the fid is invalid:
  *			"INVAID FID."
  *		If the update was unsuccessful:
- *			"FAILED TO UPDATE FOOD, PLEASE TRY AGAIN."
+ *			"FAILED TO FLAG FOOD, PLEASE TRY AGAIN."
  *		If the insert was successful:
  *			calls and returns attemptLogin($args[0], $db)
  */
@@ -652,7 +650,7 @@ function flagFood($args, $db){
  *		If 1 value is not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
- *			"INVALID FOOD."
+ *			"INVALID FID."
  *		If the delete was unsuccessful:
  *			"FAILED TO DELETE FOOD, PLEASE TRY AGAIN"
  *		If the delete was successful:
@@ -665,7 +663,7 @@ function deleteFood($args, $db){
 	if(count($args) != 1){ return "INVALID ARGS."; }
 	
 	//check size
-	if($args[0] < 0){ return "INVALID FOOD."; }
+	if($args[0] < 0){ return "INVALID FID."; }
 	
 	// Delete query
 	$deleteQuery = $db->prepare("DELETE FROM `food`
@@ -853,7 +851,7 @@ function selectScoresByDistance($args, $db){
  *		If 2 value are not set in $args:
  *			"INVALID ARGS."
  *		If args[0] is negative:
- *			"INVALID USER."
+ *			"INVALID UID."
  *		If args[1] is nonpositive:
  *			"INVALID SIZE."
  *		If the select was unsuccessful:
@@ -868,7 +866,7 @@ function selectScoresByUser($args, $db){
 	if(count($args) != 2){ return "INVALID ARGS."; }
 	
 	//check uid
-	if($args[0] < 0){ return "INVALID USER."; }
+	if($args[0] < 0){ return "INVALID UID."; }
 	
 	//check size
 	if($args[1] < 1){ return "INVALID SIZE."; }
@@ -908,6 +906,11 @@ $password = "jsxshq7_397proj";
 $db = new PDO("mysql:host=localhost;dbname=jsxshq7_397proj", $username, $password);
 
 if(empty($_POST) || empty($_POST['o']) || empty($_POST['a'])){
+	
+	$operation = $_GET['o'];
+	$args = $_GET['a'];
+	echo(htmlspecialchars($operation($args, $db), ENT_NOQUOTES));
+
 	die("NO DATA.");	
 }
 
@@ -916,7 +919,7 @@ if(empty($_POST) || empty($_POST['o']) || empty($_POST['a'])){
 // run the specified function
 $operation = $_POST['o'];
 $args = $_POST['a'];
-echo(tr_replace(array('[', ']'), '', htmlspecialchars($operation($args, $db), ENT_NOQUOTES)));
+echo(htmlspecialchars($operation($args, $db), ENT_NOQUOTES));
 
 // close DB connection
 ?>
