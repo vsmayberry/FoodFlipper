@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.StrictMode;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -41,6 +42,8 @@ public class GameActivity extends Activity {
         dh = new DataHelper(this);
 
         //initialize game
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         ArrayList<Food> food = (ArrayList) dh.selectFoodForGame(5);
         game = new Game(food, this);
 
@@ -178,7 +181,7 @@ public class GameActivity extends Activity {
             String email = settings.getString("userName", "Anonymous");
             //TODO: get logged in user object
             User user = new User(0, "TEMPUSER@example.com", "testing", "1040 E 4th St Tucson");
-            Score s = new Score(user, score);
+            Score s = new Score(user, score, getApplicationContext());
             dh.insertScore(s);
 
             finish();

@@ -21,12 +21,14 @@ public class Score {
     private String timestamp = "";
     private double latitude = 33.24;
     private double longitude = -110.9;
+    private Context context;
 
     // Used to insert new scores
-    public Score(User user, int score) {
+    public Score(User user, int score, Context context) {
 
         this.score = score;
         this.user = user;
+        this.context = context;
         setLocation();
     }
 
@@ -36,8 +38,6 @@ public class Score {
         this.user = user;
         this.score = score;
         this.timestamp = timestamp;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
     // used to display high scores
@@ -74,8 +74,6 @@ public class Score {
     private void setLocation() {
 
         //Try to get most recent location
-        Context context = null;
-        context = context.getApplicationContext();
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
