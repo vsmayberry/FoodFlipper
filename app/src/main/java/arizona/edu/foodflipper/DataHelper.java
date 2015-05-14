@@ -431,6 +431,7 @@ public class DataHelper {
                 userList.add(tempFood);
             }
 
+            System.out.println("LIST SIZE WHEN RETURNED: " + userList.size());
             return userList;
 
         } catch (IOException e) {
@@ -482,6 +483,7 @@ public class DataHelper {
                 gameList.add(tempFood);
             }
 
+            System.out.println("LIST SIZE WHEN RETURNED: " + gameList.size());
             return gameList;
 
         } catch (IOException e) {
@@ -645,6 +647,8 @@ public class DataHelper {
                 return new ArrayList<Score>();
             }
 
+            System.out.println("selectScores parse JSON...");
+
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
             Score tempScore;
@@ -659,6 +663,7 @@ public class DataHelper {
                 scoreList.add(tempScore);
             }
 
+            System.out.println("LIST SIZE WHEN RETURNED: " + scoreList.size());
             return scoreList;
 
         } catch (IOException e) {
@@ -711,6 +716,7 @@ public class DataHelper {
                 scoreList.add(tempScore);
             }
 
+            System.out.println("LIST SIZE WHEN RETURNED: " + scoreList.size());
             return scoreList;
 
 
@@ -761,6 +767,7 @@ public class DataHelper {
                 scoreList.add(tempScore);
             }
 
+            System.out.println("LIST SIZE WHEN RETURNED: " + scoreList.size());
             return scoreList;
 
         } catch (IOException e) {

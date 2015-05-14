@@ -1,7 +1,9 @@
 package arizona.edu.foodflipper;
 
 import android.app.ListActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -9,15 +11,21 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 
 
-public class ViewScoresActivity extends ListActivity {
+public class ViewScoresActivity extends ListActivity{
 
     DataHelper dh;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dh = new DataHelper(this);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         List<Score> scores = dh.selectScores(10);
+        System.out.println("NUMBER OF SCORES 1: " + scores.size());
         setListAdapter(new ArrayAdapter<Score>(this, android.R.layout.simple_list_item_1, scores));
+        System.out.println("NUMBER OF SCORES 2: " + scores.size());
     }
 
 
