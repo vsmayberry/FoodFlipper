@@ -916,7 +916,7 @@ if(empty($_POST) || empty($_POST['o']) || empty($_POST['a'])){
 // run the specified function
 $operation = $_POST['o'];
 $args = $_POST['a'];
-echo($operation($args, $db));
+echo(tr_replace(array('[', ']'), '', htmlspecialchars($operation($args, $db), ENT_NOQUOTES)));
 
 // close DB connection
 ?>

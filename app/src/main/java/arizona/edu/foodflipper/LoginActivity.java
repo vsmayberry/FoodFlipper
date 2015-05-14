@@ -256,21 +256,51 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected Boolean doInBackground(Void... params) {
 
+            System.out.println("DO IN BACKGROUND");
+
             User user = dh.attemptLogin(mEmail, mPassword);
 
             if (user.getUID() > 0){
-                    System.out.println("Found email in db");
+
+                System.out.println("SUCCESSFUL LOGIN");
+                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean("isLoggedIn", true);
+                editor.putString("userName", mEmail);
+                editor.putInt("uid", user.getUID());
+                editor.commit();
+                return true;
+            }
+
+            System.out.println("LOG IN UNSUCCESSFUL");
+
+
+            if(user.getEmail().equals(DataHelper.EMAIL_NOT_IN_SYSTEM)){
+
+                //If user doesn't exist, add to DB
+                user = dh.insertUser(new User(mEmail, mPassword, ""));
+
+                if(dh.errorCheck(user.getEmail()).equals("")) {
+
+                    System.out.println("SUCCESSFUL REGISTRATION");
                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean("isLoggedIn", true);
                     editor.putString("userName", mEmail);
+                    editor.putInt("uid", user.getUID());
                     editor.commit();
-                return true;
-            }
 
-            //Add new user
-            dh.insertUser(user);
-            return true;
+                    return true;
+                }else{
+
+                    System.out.println("UNSUCCESSFUL REGISTRATION: " + user.getEmail());
+                    return false;
+                }
+            }else{
+
+                //If it failed for another reason just return
+                return false;
+            }
         }
 
         @Override

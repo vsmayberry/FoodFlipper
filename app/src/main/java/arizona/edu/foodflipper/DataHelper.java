@@ -10,10 +10,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -26,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +33,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,6 +70,43 @@ public class DataHelper {
     */
 
     private static final String FFAPI = "http://www.jsxshq.com/foodflipper.php";
+
+    //Error codes
+   public static final String NO_DATA = "NO DATA.";
+   public static final String INVALID_ARGS ="INVALID ARGS.";
+
+   public static final String INVALID_UID = "INVALID UID.";
+   public static final String FAILED_LOAD_USER = "FAILED TO LOAD USER, PLEASE TRY AGAIN";
+   public static final String FAILED_ADD_USER = "FAILED TO ADD USER, PLEASE TRY AGAIN.";
+   public static final String FAILED_UPDATE_USER  = "FAILED TO UPDATE USER, PLEASE TRY AGAIN.";
+   public static final String FAILED_TO_DELETE_USER = "FAILED TO DELETE USER, PLEASE TRY AGAIN";
+   public static final String EMAIL_IN_SYSTEM = "THIS EMAIL IS ALREADY IN OUR SYSTEM.";
+   public static final String EMAIL_NOT_IN_SYSTEM = "THIS EMAIL IS NOT IN OUR SYSTEM.";
+   public static final String USER_DOES_NOT_EXIST = "USER DOES NOT EXIST.";
+   public static final String INVALID_EMAIL = "INVAID EMAIL.";
+   public static final String INCORRECT_PASSWORD = "INCORRECT PASSWORD.";
+   public static final String INVALID_PASSWORD = "INVAID PASSWORD.";
+
+   public static final String INVALID_FID = "INVAID FID.";
+   public static final String FAILED_ADD_FOOD = "FAILED TO ADD FOOD, PLEASE TRY AGAIN";
+   public static final String FAILED_LOAD_FOOD = "FAILED TO LOAD FOOD, PLEASE TRY AGAIN";
+   public static final String FAILED_UPDATE_FOOD = "FAILED TO UPDATE FOOD, PLEASE TRY AGAIN.";
+   public static final String FAILED_FLAG_FOOD = "FAILED TO FLAG FOOD, PLEASE TRY AGAIN";
+   public static final String INVALID_FILE_NAME = "INVALID FILE NAME.";
+   public static final String FAILED_TO_DELETE_FOOD = "FAILED TO DELETE FOOD, PLEASE TRY AGAIN";
+
+   public static final String INVALID_SCORE = "INVAID SCORE.";
+   public static final String FAILED_ADD_SCORE = "FAILED TO ADD SCORE, PLEASE TRY AGAIN.";
+   public static final String FAILED_LOAD_SCORE =  "FAILED TO LOAD SCORES, PLEASE TRY AGAIN";
+   public static final String INVALID_SIZE = "INVALID SIZE.";
+   public static final String INVALID_RADIUS = "INVALID RADIUS.";
+
+    //Success codes
+   public static final String SUCCESSFULLY_ADDED   = "SUCCESSFULLY ADDED!";
+   public static final String SUCCESSFULLY_UPDATED = "SUCCESSFULLY UPDATED!";
+   public static final String SUCCESSFULLY_DELETED = "SUCCESSFULLY DELETED!";
+   public static final String SUCCESSFULLY_FLAGGED = "SUCCESSFULLY FLAGGED!";
+
     private Context context;
 
     public DataHelper(Context context) {
@@ -88,13 +126,15 @@ public class DataHelper {
     public User insertUser(User user) {
 
         try {
+
+            System.out.println("insertUser: " + user.getEmail() + ", " + user.getPassword());
+
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(FFAPI);
             ArrayList<NameValuePair> array = new ArrayList<NameValuePair>();
             array.add(new BasicNameValuePair("o", "insertUser"));
             array.add(new BasicNameValuePair("a[0]", user.getEmail()));
             array.add(new BasicNameValuePair("a[1]", user.getPassword()));
-            array.add(new BasicNameValuePair("a[2]", user.getAddress()));
             post.setEntity(new UrlEncodedFormEntity(array));
             HttpResponse response = httpClient.execute(post);
 
@@ -103,19 +143,34 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("insertUser builder: " + builder);
 
-            return new User("INSERT SUCCESS");
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new User(error);
+            }
+            System.out.println("insertUser create jsonArray");
+            JSONArray jsonArray = new JSONArray(builder.toString());
+
+            System.out.println("insertUser get uid from json");
+            int uid = jsonArray.getInt(0);
+            return new User(uid, user.getEmail(), user.getPassword(), "");
 
         } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return new User("INSERT FAILED");
+            System.out.println("insertUser IOException");
+            return new User("IO EXCEPTION");
+        } catch (JSONException e) {
+
+            System.out.println("insertUserJSONException");
+            return new User("JSONException");
+        }
     }
 
 
     public User attemptLogin(String email, String password) {
+
+        System.out.println("attemptLogin " + email + ", " + password);
 
         try {
             HttpClient httpClient = new DefaultHttpClient();
@@ -134,13 +189,42 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
+            System.out.println("attemptLogin builder: " + builder);
 
-            JSONObject jsonObject = new JSONObject(builder.toString());
-            System.out.println(builder);
-            return new User(jsonObject.getInt("uid"), email, password, jsonObject.getString("address"));
 
-        } catch (Exception e) {
-            return new User(-1, "fail@example.com", "", "");
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new User(error); //return error user
+            }
+
+            System.out.println("attemptLogin create jsonArray");
+            JSONArray jsonArray = new JSONArray(builder.toString());
+
+            System.out.println("attemptLogin get uid from json");
+            int uid = jsonArray.getInt(0);
+            System.out.println("attemptLogin get address from json");
+            String address = "";
+            if (jsonArray.length() >= 4) {
+               address = jsonArray.getString(3);
+            }
+            return new User(uid, email, password, address);
+
+        } catch (JSONException e) {
+
+            System.out.println("attemptLogin JSONException");
+            return(new User("JSONException"));
+        } catch (ClientProtocolException e) {
+
+            System.out.println("attemptLogin ClientProtocolException");
+            return(new User("ClientProtocolException"));
+        } catch (UnsupportedEncodingException e) {
+
+            System.out.println("attemptLogin UnsupportedEncodingException");
+            return(new User("UnsupportedEncodingException"));
+        } catch (IOException e) {
+
+            System.out.println("attemptLogin IOException");
+            return(new User("IOException"));
         }
     }
 
@@ -160,10 +244,14 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectUser builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new User(error);
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
-            System.out.println(builder);
             return new User(jsonObject.getInt("uid"), jsonObject.getString("email"),
                             jsonObject.getString("password"), jsonObject.getString("address"));
 
@@ -223,7 +311,7 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("deleteUser builder: " + builder);
 
                return true;
 
@@ -290,7 +378,7 @@ public class DataHelper {
                 builder.append(line);
             }
 
-            System.out.println(builder);
+            System.out.println("insertFood builder: " + builder);
             return true;
 
         } catch (IOException e) {
@@ -318,11 +406,15 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectFoodByUser builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new ArrayList<Food>();
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
-            System.out.println(builder);
             Food tempFood;
             ArrayList<Food> userList = new ArrayList<Food>();
 
@@ -365,11 +457,15 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectFoodForGame builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new ArrayList<Food>();
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
-            System.out.println(builder);
             Food tempFood;
             ArrayList<Food> gameList = new ArrayList<Food>();
 
@@ -417,7 +513,7 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("updateFood builder: " + builder);
 
             return true;
         } catch (IOException e) {
@@ -444,7 +540,7 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("flagFood builder: " + builder);
 
             return true;
 
@@ -472,7 +568,7 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("deleteFood builder: " + builder);
 
             return true;
 
@@ -510,7 +606,7 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("insertScore builder: " + builder);
 
             return true;
 
@@ -540,11 +636,15 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectScores builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new ArrayList<Score>();
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
-            System.out.println(builder);
             Score tempScore;
             ArrayList<Score> scoreList = new ArrayList<Score>();
 
@@ -588,11 +688,15 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectScoresByDistance builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new ArrayList<Score>();
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
-            System.out.println(builder);
             Score tempScore;
             ArrayList<Score> scoreList = new ArrayList<Score>();
 
@@ -624,7 +728,7 @@ public class DataHelper {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(FFAPI);
             ArrayList<NameValuePair> array = new ArrayList<NameValuePair>();
-            array.add(new BasicNameValuePair("o", "selectScoresByDistance"));
+            array.add(new BasicNameValuePair("o", "selectScoresByUser"));
             array.add(new BasicNameValuePair("a[0]", "" + user.getUID()));
             post.setEntity(new UrlEncodedFormEntity(array));
             HttpResponse response = httpClient.execute(post);
@@ -634,11 +738,15 @@ public class DataHelper {
             for (String line = null; (line = reader.readLine()) != null; ) {
                 builder.append(line);
             }
-            System.out.println(builder);
+            System.out.println("selectscoresByUser builder: " + builder);
+
+            String error = errorCheck(builder.toString());
+            if(!error.equals("")){
+                return new ArrayList<Score>();
+            }
 
             JSONObject jsonObject = new JSONObject(builder.toString());
             JSONObject jsonTemp;
-            System.out.println(builder);
             Score tempScore;
             ArrayList<Score> scoreList = new ArrayList<Score>();
 
@@ -658,6 +766,26 @@ public class DataHelper {
         } catch (JSONException e) {
             return new ArrayList<Score>();
         }
+    }
+
+
+    public String errorCheck(String response){
+         String errors[] = {NO_DATA, INVALID_ARGS, INVALID_UID, FAILED_LOAD_USER, FAILED_ADD_USER,
+                 FAILED_UPDATE_USER, FAILED_TO_DELETE_USER, EMAIL_IN_SYSTEM, EMAIL_NOT_IN_SYSTEM,
+                 USER_DOES_NOT_EXIST, INVALID_EMAIL, INCORRECT_PASSWORD, INVALID_PASSWORD,
+                 INVALID_FID, FAILED_ADD_FOOD, FAILED_LOAD_FOOD, FAILED_UPDATE_FOOD,
+                 FAILED_FLAG_FOOD, INVALID_FILE_NAME, FAILED_TO_DELETE_FOOD, INVALID_SCORE,
+                 FAILED_ADD_SCORE, FAILED_LOAD_SCORE, INVALID_SIZE, INVALID_RADIUS,
+                 SUCCESSFULLY_ADDED, SUCCESSFULLY_UPDATED, SUCCESSFULLY_DELETED,
+                 SUCCESSFULLY_FLAGGED};
+        for(int i = 0; i < errors.length; i++){
+            if(response.equals(errors[i])){
+
+                System.out.println("ERROR MESSAGE DETECTED: " + errors[i]);
+                return errors[i];
+            }
+        }
+        return "";
     }
 
 }
